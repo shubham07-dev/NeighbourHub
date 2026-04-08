@@ -1,8 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "node server.js",
+    "seed": "node seeder.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -10,7 +12,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "dotenv": "^17.4.1",
     "express": "^5.2.1",
+    "google-auth-library": "^10.6.2",
     "mongoose": "^9.4.1"
   }
 }

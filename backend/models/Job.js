@@ -16,6 +16,9 @@ const jobSchema = new mongoose.Schema({
     enum: ['pending', 'accepted', 'ongoing', 'completed', 'rejected'],
     default: 'pending',
   },
+  description: {
+    type: String,
+  },
   reviews: {
     rating: {
       type: Number,
