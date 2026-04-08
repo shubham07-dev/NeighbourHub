@@ -39,7 +39,8 @@ const providerSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  reviews: [{
+ reviews: {
+  type: [{
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -49,10 +50,10 @@ const providerSchema = new mongoose.Schema({
       min: 1,
       max: 5,
     },
-    reviewText: {
-      type: String,
-    }
+    reviewText: String
   }],
+  default: []
+},
   avgReviews: {
     type: Number,
     default: 0,
