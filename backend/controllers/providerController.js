@@ -45,6 +45,19 @@ const updateProviderProfile = async (req, res, next) => {
     const provider = await Provider.findById(req.user._id);
     if (!provider) { res.status(404); throw new Error('Provider not found'); }
 
+    if (req.body.pricePerHour !== undefined && Number(req.body.pricePerHour) < 100) {
+      res.status(400);
+      throw new Error('Base Service Cost must be at least ₹100');
+    }
+
+    if (!req.body.phoneNumber && !provider.phoneNumber) {
+      res.status(400); throw new Error('Phone number is required');
+    }
+
+    if (!req.body.bio && !provider.bio) {
+      res.status(400); throw new Error('Bio is required');
+    }
+
     provider.firstName = req.body.firstName || provider.firstName;
     provider.lastName = req.body.lastName || provider.lastName;
     provider.phoneNumber = req.body.phoneNumber || provider.phoneNumber;

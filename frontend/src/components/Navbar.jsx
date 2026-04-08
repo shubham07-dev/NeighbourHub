@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import axios from 'axios';
-import { Menu, X, Home, MapPin, ChevronDown, Search, Tag, HelpCircle, User, ClipboardList, Settings, LogOut } from 'lucide-react';
+import { Menu, X, Home, MapPin, ChevronDown, Search, Tag, HelpCircle, User, ClipboardList, Settings, LogOut, Languages } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -26,6 +26,28 @@ const Navbar = () => {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  const [currentLang, setCurrentLang] = useState('en');
+
+  useEffect(() => {
+    const isHindi = document.cookie.includes('googtrans=/en/hi');
+    setCurrentLang(isHindi ? 'hi' : 'en');
+  }, []);
+
+  const toggleLanguage = () => {
+    const newLang = currentLang === 'en' ? 'hi' : 'en';
+    if (newLang === 'hi') {
+      document.cookie = `googtrans=/en/hi; path=/`;
+      document.cookie = `googtrans=/en/hi; domain=${window.location.hostname}; path=/`;
+    } else {
+      document.cookie = `googtrans=/en/en; path=/`;
+      document.cookie = `googtrans=/en/en; domain=${window.location.hostname}; path=/`;
+      
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+      document.cookie = `googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; domain=${window.location.hostname}; path=/;`;
+    }
+    window.location.reload();
+  };
 
   // Poll job count for badge
   useEffect(() => {
@@ -109,6 +131,13 @@ const Navbar = () => {
                 </Link>
                 <button 
                   className="nav-item" 
+                  onClick={toggleLanguage} 
+                  style={{ width: '100%', justifyContent: 'flex-start', marginTop: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem', color: '#fff' }}
+                >
+                  <Languages size={16} className="nav-icon" style={{ color: '#aaa' }} /> {currentLang === 'en' ? 'Switch to Hindi (हिंदी)' : 'Switch to English'}
+                </button>
+                <button 
+                  className="nav-item" 
                   onClick={handleLogout} 
                   style={{ width: '100%', justifyContent: 'flex-start', color: '#e74c3c', marginTop: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
                 >
@@ -141,6 +170,9 @@ const Navbar = () => {
                         <Settings size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Admin Dashboard
                       </Link>
                     )}
+                    <button className="dropdown-item" onClick={toggleLanguage} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit', fontSize: '14px' }}>
+                      <Languages size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle', color: '#aaa' }} /> {currentLang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+                    </button>
                     <div className="dropdown-divider" />
                     <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
                       <LogOut size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Logout

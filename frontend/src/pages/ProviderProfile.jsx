@@ -84,8 +84,8 @@ const ProviderProfile = () => {
             </div>
           </div>
           <div className="form-group">
-            <label>Phone Number</label>
-            <input value={form.phoneNumber} onChange={e => setForm({...form, phoneNumber: e.target.value})} />
+            <label>Phone Number <span style={{color: '#e74c3c'}}>*</span></label>
+            <input required value={form.phoneNumber} onChange={e => setForm({...form, phoneNumber: e.target.value})} />
           </div>
           <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.2rem' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -96,8 +96,8 @@ const ProviderProfile = () => {
               </select>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label>Base Service Cost (₹)</label>
-              <input type="number" value={form.pricePerHour} onChange={e => setForm({...form, pricePerHour: e.target.value})} />
+              <label>Base Service Cost (₹) <span style={{color: '#e74c3c'}}>*</span></label>
+              <input required type="number" min="100" value={form.pricePerHour} onChange={e => setForm({...form, pricePerHour: e.target.value})} />
             </div>
           </div>
           <div className="form-group">
@@ -109,8 +109,8 @@ const ProviderProfile = () => {
             </select>
           </div>
           <div className="form-group">
-            <label>Bio</label>
-            <textarea value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} rows="3" />
+            <label>Bio <span style={{color: '#e74c3c'}}>*</span></label>
+            <textarea required placeholder="give your experience ...... and other things fill it according yourself" value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} rows="3" />
           </div>
           <div className="form-group">
             <label>Service Location</label>
