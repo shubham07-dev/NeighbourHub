@@ -13,11 +13,22 @@ const jobSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'ongoing', 'completed', 'rejected'],
+    enum: ['pending', 'accepted', 'out for service', 'reached', 'ongoing', 'completed', 'rejected'],
     default: 'pending',
   },
-  description: {
-    type: String,
+  description: { type: String },
+  serviceLocation: {
+    type: { type: String, enum: ['Point'] },
+    coordinates: { type: [Number] }
+  },
+  address: {
+    houseNumber: String,
+    city: String,
+    area: String
+  },
+  providerLiveLocation: {
+    type: { type: String, enum: ['Point'] },
+    coordinates: { type: [Number] }
   },
   reviews: {
     rating: {

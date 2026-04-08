@@ -7,6 +7,7 @@ const ProviderDashboard = () => {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const intervalRef = useRef(null);
+  const watchIdRef = useRef(null);
 
   const fetchJobs = async () => {
     try {
@@ -30,6 +31,25 @@ const ProviderDashboard = () => {
     } catch (err) { alert('Update failed'); }
   };
 
+  useEffect(() => {
+    const outForServiceJob = jobs.find(j => j.status === 'out for service');
+    if (outForServiceJob && navigator.geolocation) {
+      if (!watchIdRef.current) {
+        watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
+          axios.put(`/api/jobs/${outForServiceJob._id}/live-location`, {
+            lng: pos.coords.longitude,
+            lat: pos.coords.latitude
+          }, { headers: { Authorization: `Bearer ${user.token}` } }).catch(() => {});
+        }, () => {}, { enableHighAccuracy: true });
+      }
+    } else {
+      if (watchIdRef.current) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+    }
+  }, [jobs]);
+
   const openRoute = (providerLoc, userLoc) => {
     // Graceful fallback if native location is missing (useful for older demo accounts)
     const pLoc = providerLoc?.coordinates || [80.9462, 26.8467]; // default origin
@@ -42,7 +62,7 @@ const ProviderDashboard = () => {
   };
 
   const pending = jobs.filter(j => j.status === 'pending');
-  const active = jobs.filter(j => ['accepted', 'ongoing'].includes(j.status));
+  const active = jobs.filter(j => ['accepted', 'out for service', 'reached', 'ongoing'].includes(j.status));
   const completed = jobs.filter(j => j.status === 'completed');
 
   if (loading) return <div className="loading">Loading dashboard...</div>;
@@ -103,12 +123,16 @@ const ProviderDashboard = () => {
                 <p className="text-sm">{job.description}</p>
                 {job.user?.phoneNumber && <p className="text-sm text-muted mt-1">📞 {job.user.phoneNumber}</p>}
 
+                {job.address?.city && <p className="text-sm mt-1">📍 {job.address.houseNumber}, {job.address.area}, {job.address.city}</p>}
+
                 <div className="flex gap-1 mt-2">
-                  {job.status === 'accepted' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'ongoing')}>▶ Start Work</button>}
+                  {job.status === 'accepted' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'out for service')}>🚗 Start Journey</button>}
+                  {job.status === 'out for service' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'reached')}>📍 Arrived</button>}
+                  {job.status === 'reached' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'ongoing')}>▶ Start Work</button>}
                   {job.status === 'ongoing' && <button className="btn btn-success btn-sm" onClick={() => updateStatus(job._id, 'completed')}>✓ Mark Complete</button>}
                   <button
                     className="btn btn-route btn-sm"
-                    onClick={() => openRoute(job.provider?.location || user.location, job.user?.location)}
+                    onClick={() => openRoute(job.provider?.location || user.location, job.serviceLocation || job.user?.location)}
                   >
                     🗺️ Navigate to Customer
                   </button>

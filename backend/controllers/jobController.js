@@ -2,11 +2,16 @@ const Job = require('../models/Job');
 const Provider = require('../models/Provider');
 
 // @desc    Create a job (customer books a provider)
-// @route   POST /api/jobs
 const createJob = async (req, res, next) => {
   try {
-    const { provider, description } = req.body;
-    const job = await Job.create({ user: req.user._id, provider, description, status: 'pending' });
+    const { provider, description, lng, lat, houseNumber, city, area } = req.body;
+    
+    // Save to job natively
+    const jobData = { user: req.user._id, provider, description, status: 'pending' };
+    if (lng && lat) jobData.serviceLocation = { type: 'Point', coordinates: [Number(lng), Number(lat)] };
+    if (houseNumber || city || area) jobData.address = { houseNumber, city, area };
+
+    const job = await Job.create(jobData);
     res.status(201).json(job);
   } catch (error) { next(error); }
 };
@@ -85,4 +90,21 @@ const getAllJobs = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { createJob, getMyJobs, getProviderJobs, updateJobStatus, addReview, getAllJobs };
+// @desc    Update live location (provider)
+// @route   PUT /api/jobs/:id/live-location
+const updateLiveLocation = async (req, res, next) => {
+  try {
+    const { lng, lat } = req.body;
+    if (!lng || !lat) { res.status(400); throw new Error('Longitude and latitude required'); }
+
+    const job = await Job.findById(req.params.id);
+    if (!job) { res.status(404); throw new Error('Job not found'); }
+    if (job.provider.toString() !== req.user._id.toString()) { res.status(401); throw new Error('Not authorized'); }
+
+    job.providerLiveLocation = { type: 'Point', coordinates: [Number(lng), Number(lat)] };
+    await job.save();
+    res.json({ message: 'Live location updated' });
+  } catch (error) { next(error); }
+};
+
+module.exports = { createJob, getMyJobs, getProviderJobs, updateJobStatus, addReview, getAllJobs, updateLiveLocation };

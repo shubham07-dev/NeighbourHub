@@ -1,6 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Vite leaflet icon missing issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const CustomerJobs = () => {
   const { user } = useAuth();
@@ -46,7 +57,7 @@ const CustomerJobs = () => {
 
   if (loading) return <div className="loading">Loading your jobs...</div>;
 
-  const activeJobs = jobs.filter(j => ['pending', 'accepted', 'ongoing'].includes(j.status));
+  const activeJobs = jobs.filter(j => ['pending', 'accepted', 'out for service', 'reached', 'ongoing'].includes(j.status));
   const completedJobs = jobs.filter(j => j.status === 'completed');
   const rejectedJobs = jobs.filter(j => j.status === 'rejected');
 
@@ -80,13 +91,25 @@ const CustomerJobs = () => {
                     <p className="text-sm mt-1">{job.description}</p>
                     {job.provider?.phoneNumber && <p className="text-sm text-muted mt-1">📞 {job.provider.phoneNumber}</p>}
 
-                    {/* Show Route button when accepted/ongoing */}
-                    {['accepted', 'ongoing'].includes(job.status) && (
+                    {job.status === 'out for service' && job.providerLiveLocation && (
+                      <div style={{marginTop:'1rem'}}>
+                        <p className="text-sm text-success" style={{fontWeight:'600', marginBottom:'0.3rem'}}>📍 Provider is en route to you!</p>
+                        <div style={{ height: '150px', width: '100%', borderRadius: '8px', overflow: 'hidden' }}>
+                          <MapContainer center={[job.providerLiveLocation.coordinates[1], job.providerLiveLocation.coordinates[0]]} zoom={15} style={{ height: '100%', width: '100%' }}>
+                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                            <Marker position={[job.providerLiveLocation.coordinates[1], job.providerLiveLocation.coordinates[0]]} />
+                          </MapContainer>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Show Route button when accepted/ongoing/out for service */}
+                    {['accepted', 'out for service', 'reached', 'ongoing'].includes(job.status) && (
                       <button
                         className="btn btn-route mt-1"
-                        onClick={() => openRoute(job.provider?.location, job.user?.location)}
+                        onClick={() => openRoute(job.provider?.location, job.serviceLocation || job.user?.location)}
                       >
-                        🗺️ Show Route on Map
+                        🗺️ View Route on Map
                       </button>
                     )}
                   </div>

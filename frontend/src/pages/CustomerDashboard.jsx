@@ -3,6 +3,17 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import axios from 'axios';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix Vite leaflet icon missing issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
 const SERVICE_CATEGORIES = [
   { name: 'Plumber', icon: '🔧' },
@@ -24,6 +35,15 @@ const CustomerDashboard = () => {
   const [bookingDesc, setBookingDesc] = useState('');
   const [bookingProvider, setBookingProvider] = useState(null);
   const [searched, setSearched] = useState(false);
+  const [bookingLocation, setBookingLocation] = useState(null);
+  const [address, setAddress] = useState({ houseNumber: '', city: '', area: '' });
+
+  const MapEvents = () => {
+    useMapEvents({
+      click(e) { setBookingLocation({ lng: e.latlng.lng, lat: e.latlng.lat }); }
+    });
+    return bookingLocation ? <Marker position={[bookingLocation.lat, bookingLocation.lng]} /> : null;
+  };
 
   // Auto-fetch providers when location is available
   useEffect(() => {
@@ -53,19 +73,17 @@ const CustomerDashboard = () => {
 
   const handleBook = async (providerId) => {
     if (!bookingDesc.trim()) return alert('Please describe the work you need.');
+    if (!bookingLocation) return alert('Please drop a pin on the map to confirm service location.');
     try {
-      // First, save the customer's current location to their profile so the provider can navigate to them
-      if (location && location.lng && location.lat) {
-        try {
-          await axios.put('/api/users/profile', { lng: location.lng, lat: location.lat }, {
-            headers: { Authorization: `Bearer ${user.token}` }
-          });
-        } catch (locErr) {
-          console.warn('Failed to save user location to profile:', locErr);
-        }
-      }
+      const payload = {
+        provider: providerId,
+        description: bookingDesc,
+        lng: bookingLocation.lng,
+        lat: bookingLocation.lat,
+        ...address
+      };
 
-      await axios.post('/api/jobs', { provider: providerId, description: bookingDesc }, {
+      await axios.post('/api/jobs', payload, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       alert('Job request sent! Check your Jobs page.');
@@ -151,20 +169,40 @@ const CustomerDashboard = () => {
                 </div>
 
                 {bookingProvider === p._id ? (
-                  <div className="booking-inline">
+                  <div className="booking-inline" style={{display:'flex', flexDirection:'column', gap:'0.8rem'}}>
                     <textarea
                       placeholder="Describe the work you need..."
                       value={bookingDesc}
                       onChange={e => setBookingDesc(e.target.value)}
                       rows="2"
                     />
+                    
+                    <div style={{fontSize:'0.9rem', fontWeight:'600'}}>Confirm Location</div>
+                    <div style={{ height: '200px', width: '100%', borderRadius: '8px', overflow: 'hidden' }}>
+                      <MapContainer center={[bookingLocation?.lat || 26.8467, bookingLocation?.lng || 80.9462]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                        <MapEvents />
+                      </MapContainer>
+                    </div>
+                    <p style={{fontSize:'0.75rem', color:'#aaa'}}>* Tap on map to drop precise pin</p>
+
+                    <div style={{display:'flex', gap:'0.5rem'}}>
+                      <input placeholder="City" value={address.city} onChange={e=>setAddress({...address, city: e.target.value})} />
+                      <input placeholder="Area" value={address.area} onChange={e=>setAddress({...address, area: e.target.value})} />
+                    </div>
+                    <input placeholder="House No. / Flat / Landmark" value={address.houseNumber} onChange={e=>setAddress({...address, houseNumber: e.target.value})} />
+
                     <div className="booking-actions">
-                      <button className="btn btn-success btn-sm" onClick={() => handleBook(p._id)}>✓ Confirm</button>
+                      <button className="btn btn-success btn-sm" onClick={() => handleBook(p._id)}>✓ Confirm Job</button>
                       <button className="btn btn-secondary btn-sm" onClick={() => setBookingProvider(null)}>Cancel</button>
                     </div>
                   </div>
                 ) : (
-                  <button className="btn btn-primary btn-sm btn-book" onClick={() => setBookingProvider(p._id)}>Book Now</button>
+                  <button className="btn btn-primary btn-sm btn-book" onClick={() => {
+                    setBookingProvider(p._id);
+                    setBookingLocation(location || { lng: 80.9462, lat: 26.8467 });
+                    setAddress({ houseNumber: '', city: '', area: areaName || '' });
+                  }}>Book Now</button>
                 )}
               </div>
             ))}
