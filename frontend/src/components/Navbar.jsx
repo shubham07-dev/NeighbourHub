@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import axios from 'axios';
-import { Menu, X, Home, MapPin, ChevronDown, Search, Tag, HelpCircle, User, ClipboardList, Settings, LogOut, Languages } from 'lucide-react';
+import { Menu, X, Home, MapPin, ChevronDown, Search, Tag, HelpCircle, User, ClipboardList, Settings, LogOut, Languages, Sun, Moon } from 'lucide-react';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -28,11 +28,31 @@ const Navbar = () => {
   }, []);
 
   const [currentLang, setCurrentLang] = useState('en');
+  const [isLightMode, setIsLightMode] = useState(false);
 
   useEffect(() => {
     const isHindi = document.cookie.includes('googtrans=/en/hi');
     setCurrentLang(isHindi ? 'hi' : 'en');
+
+    // Theme initialization
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      setIsLightMode(true);
+      document.documentElement.classList.add('light-mode');
+    }
   }, []);
+
+  const toggleTheme = () => {
+    if (isLightMode) {
+      document.documentElement.classList.remove('light-mode');
+      localStorage.setItem('theme', 'dark');
+      setIsLightMode(false);
+    } else {
+      document.documentElement.classList.add('light-mode');
+      localStorage.setItem('theme', 'light');
+      setIsLightMode(true);
+    }
+  };
 
   const toggleLanguage = () => {
     const newLang = currentLang === 'en' ? 'hi' : 'en';
@@ -104,6 +124,10 @@ const Navbar = () => {
           </button>
         )}
 
+        <button onClick={toggleTheme} className="nav-item" style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center' }}>
+          {isLightMode ? <Moon size={16} className="nav-icon" /> : <Sun size={16} className="nav-icon" />}
+        </button>
+
         <Link to="/help" className="nav-item" onClick={closeMobileMenu}>
           <HelpCircle size={16} className="nav-icon" /> Help
         </Link>
@@ -143,6 +167,14 @@ const Navbar = () => {
                 >
                   <LogOut size={16} className="nav-icon" style={{ color: '#e74c3c' }} /> Logout
                 </button>
+                <button 
+                  className="nav-item" 
+                  onClick={toggleTheme} 
+                  style={{ width: '100%', justifyContent: 'flex-start', marginTop: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--text-primary)' }}
+                >
+                  {isLightMode ? <Moon size={16} className="nav-icon" style={{ color: '#aaa', marginRight: '0.5rem' }} /> : <Sun size={16} className="nav-icon" style={{ color: '#aaa', marginRight: '0.5rem' }} />} 
+                  {isLightMode ? 'Dark Mode' : 'Light Mode'}
+                </button>
               </>
             ) : (
               <div className="nav-avatar-wrap" ref={dropdownRef}>
@@ -175,6 +207,10 @@ const Navbar = () => {
                     )}
                     <button className="dropdown-item" onClick={toggleLanguage} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit', fontSize: '14px' }}>
                       <Languages size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle', color: '#aaa' }} /> {currentLang === 'en' ? 'Switch to Hindi' : 'Switch to English'}
+                    </button>
+                    <button className="dropdown-item" onClick={toggleTheme} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontFamily: 'inherit', fontSize: '14px' }}>
+                      {isLightMode ? <Moon size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle', color: '#aaa' }} /> : <Sun size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle', color: '#aaa' }} />}
+                      {isLightMode ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
                     </button>
                     <div className="dropdown-divider" />
                     <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
