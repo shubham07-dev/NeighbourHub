@@ -80,7 +80,7 @@ const Navbar = () => {
     <nav className="navbar-new">
       <div className="navbar-left">
         <Link to="/" className="navbar-logo" onClick={() => { closeMobileMenu(); window.scrollTo(0, 0); }}>
-          <Home size={20} /> <span>NeighbourHub</span>
+          <img src="/logo.png" alt="NeighbourHub Logo" style={{ width: '32px', height: '32px', borderRadius: '8px', objectFit: 'cover' }} /> <span>NeighbourHub</span>
         </Link>
         <button className="navbar-location" onClick={detectLocation} title="Click to refresh location">
           <MapPin size={14} className="loc-icon" />

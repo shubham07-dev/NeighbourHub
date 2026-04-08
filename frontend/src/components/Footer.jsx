@@ -49,8 +49,8 @@ const Footer = () => {
             <h4>Contact Us</h4>
             <ul className="footer-contact">
               <li><MapPin size={16} className="contact-icon" /> <span>123 Innovation Drive,<br/>Tech City, TC 10010</span></li>
-              <li><Phone size={16} className="contact-icon" /> <span>+1 (555) 123-4567</span></li>
-              <li><Mail size={16} className="contact-icon" /> <span>support@neighbourhub.com</span></li>
+              <li><Phone size={16} className="contact-icon" /> <span>+91 1234567890</span></li>
+              <li><Mail size={16} className="contact-icon" /> <span>abc@gmail.com</span></li>
             </ul>
           </div>
 
