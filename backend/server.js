@@ -7,6 +7,8 @@ const userRoutes = require('./routes/userRoutes');
 const providerRoutes = require('./routes/providerRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const supportRoutes = require('./routes/supportRoutes');
+const supportAgentRoutes = require('./routes/supportAgentRoutes');
 
 const app = express();
 
@@ -38,6 +40,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/support-agent', supportAgentRoutes);
 
 // 404
 app.use((req, res, next) => {

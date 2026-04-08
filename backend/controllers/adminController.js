@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Provider = require('../models/Provider');
 const Job = require('../models/Job');
+const SupportAgent = require('../models/SupportAgent');
 
 // @desc    Get admin dashboard stats
 // @route   GET /api/admin/dashboard
@@ -38,4 +39,34 @@ const deleteProvider = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { getDashboard, deleteUser, deleteProvider };
+// Support Agents
+const createSupportAgent = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      res.status(400); throw new Error('Please add all fields');
+    }
+    const agentExists = await SupportAgent.findOne({ email });
+    if (agentExists) {
+      res.status(400); throw new Error('Agent already exists');
+    }
+    const agent = await SupportAgent.create({ name, email, password });
+    res.status(201).json(agent);
+  } catch (error) { next(error); }
+};
+
+const getSupportAgents = async (req, res, next) => {
+  try {
+    const agents = await SupportAgent.find({}).sort('-createdAt');
+    res.json(agents);
+  } catch (error) { next(error); }
+};
+
+const deleteSupportAgent = async (req, res, next) => {
+  try {
+    await SupportAgent.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Support agent removed' });
+  } catch (error) { next(error); }
+};
+
+module.exports = { getDashboard, deleteUser, deleteProvider, createSupportAgent, getSupportAgents, deleteSupportAgent };
