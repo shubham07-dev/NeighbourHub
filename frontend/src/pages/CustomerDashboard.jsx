@@ -39,7 +39,7 @@ const CustomerDashboard = () => {
     setLoading(true);
     setActiveCategory(serviceType);
     try {
-      const url = `/api/providers/nearby?lng=${location.lng}&lat=${location.lat}&distance=15&serviceType=${serviceType}`;
+      const url = `/api/providers/nearby?lng=${location.lng}&lat=${location.lat}&distance=15&serviceType=${encodeURIComponent(serviceType)}`;
       const { data } = await axios.get(url);
       setProviders(data);
       setSearched(true);
@@ -48,7 +48,8 @@ const CustomerDashboard = () => {
       // Fallback: fetch all providers if geo fails
       try {
         const { data } = await axios.get('/api/providers');
-        setProviders(serviceType === 'All' ? data : data.filter(p => p.serviceType === serviceType));
+        const filtered = serviceType === 'All' ? data : data.filter(p => p.serviceType === serviceType);
+        setProviders(filtered);
         setSearched(true);
       } catch { /* ignore */ }
     }
