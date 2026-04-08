@@ -17,6 +17,7 @@ import Help from './pages/Help';
 import TicketChat from './pages/TicketChat';
 import SupportLogin from './pages/SupportLogin';
 import SupportDashboard from './pages/SupportDashboard';
+import AIChatbot from './components/AIChatbot';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -79,6 +80,7 @@ function App() {
               <AppRoutes />
             </main>
             <Footer />
+            <AIChatbot />
           </div>
         </Router>
       </LocationProvider>
