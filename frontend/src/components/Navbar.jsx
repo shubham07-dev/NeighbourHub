@@ -89,39 +89,58 @@ const Navbar = () => {
               {jobCount > 0 && <span className="nav-badge">{jobCount}</span>}
             </Link>
 
-            <div className="nav-avatar-wrap" ref={dropdownRef}>
-              <button
-                className="nav-avatar"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                style={{ width: mobileMenuOpen ? '100%' : '36px', borderRadius: mobileMenuOpen ? 'var(--radius-sm)' : '50%' }}
-              >
-                {mobileMenuOpen ? `Account (${avatar})` : avatar}
-              </button>
-              {dropdownOpen && (
-                <div className="avatar-dropdown">
-                  <div className="dropdown-header">
-                    <strong>{user.firstName} {user.lastName || ''}</strong>
-                    <span>{user.email}</span>
-                  </div>
-                  <div className="dropdown-divider" />
-                  <Link to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                    👤 Profile
-                  </Link>
-                  <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/jobs'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                    📋 My Jobs
-                  </Link>
-                  {user.role === 'admin' && (
-                    <Link to="/admin" className="dropdown-item" onClick={() => { setDropdownOpen(false); closeMobileMenu(); }}>
-                      <Settings size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Admin Dashboard
+            {mobileMenuOpen ? (
+              <>
+                <Link 
+                  to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} 
+                  className="nav-avatar" 
+                  onClick={closeMobileMenu}
+                  style={{ width: '100%', borderRadius: 'var(--radius-sm)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '0.5rem' }}
+                >
+                  <User size={16} style={{ marginRight: '0.5rem' }} /> {user.firstName || 'Profile'}
+                </Link>
+                <button 
+                  className="nav-item" 
+                  onClick={handleLogout} 
+                  style={{ width: '100%', justifyContent: 'flex-start', color: '#e74c3c', marginTop: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem' }}
+                >
+                  <LogOut size={16} className="nav-icon" style={{ color: '#e74c3c' }} /> Logout
+                </button>
+              </>
+            ) : (
+              <div className="nav-avatar-wrap" ref={dropdownRef}>
+                <button
+                  className="nav-avatar"
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                >
+                  {avatar}
+                </button>
+                {dropdownOpen && (
+                  <div className="avatar-dropdown">
+                    <div className="dropdown-header">
+                      <strong>{user.firstName} {user.lastName || ''}</strong>
+                      <span>{user.email}</span>
+                    </div>
+                    <div className="dropdown-divider" />
+                    <Link to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      👤 Profile
                     </Link>
-                  )}
-                  <div className="dropdown-divider" />
-                  <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
-                    <LogOut size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Logout
-                  </button>
-                </div>
-              )}
-            </div>
+                    <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/jobs'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      📋 My Jobs
+                    </Link>
+                    {user.role === 'admin' && (
+                      <Link to="/admin" className="dropdown-item" onClick={() => { setDropdownOpen(false); closeMobileMenu(); }}>
+                        <Settings size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Admin Dashboard
+                      </Link>
+                    )}
+                    <div className="dropdown-divider" />
+                    <button className="dropdown-item dropdown-logout" onClick={handleLogout}>
+                      <LogOut size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </div>
