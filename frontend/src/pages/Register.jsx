@@ -8,7 +8,7 @@ import { getEnglishAreaName } from '../utils/geocode';
 
 const Register = () => {
   const [role, setRole] = useState('customer');
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phoneNumber: '', serviceType: '', pricePerHour: '', priceType: 'per_hour', bio: '', gender: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phoneNumber: '', serviceType: '', pricePerHour: '', priceType: 'per_hour', bio: '', gender: '', profilePicture: '' });
   const [location, setLocation] = useState(null);
   const [locStatus, setLocStatus] = useState('');
   const [error, setError] = useState('');
@@ -32,6 +32,15 @@ const Register = () => {
       },
       () => setLocStatus('Error: Location access denied. Please enable location access.')
     );
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setForm({ ...form, profilePicture: reader.result });
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -171,6 +180,18 @@ const Register = () => {
               </div>
             </>
           )}
+
+          <div className="form-group">
+            <label>Profile Picture (optional)</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              {form.profilePicture && (
+                <div style={{ width: 48, height: 48, borderRadius: '50%', overflow: 'hidden', flexShrink: 0, border: '2px solid var(--accent)' }}>
+                  <img src={form.profilePicture} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              )}
+              <input type="file" accept="image/*" onChange={handleFileChange} />
+            </div>
+          </div>
 
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? 'Creating Account...' : 'Create Account'}

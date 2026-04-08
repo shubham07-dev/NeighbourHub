@@ -149,8 +149,11 @@ const Navbar = () => {
                 <button
                   className="nav-avatar"
                   onClick={() => setDropdownOpen(!dropdownOpen)}
+                  style={{ overflow: 'hidden', padding: user?.profilePicture ? 0 : undefined }}
                 >
-                  {avatar}
+                  {user?.profilePicture ? (
+                    <img src={user.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                  ) : avatar}
                 </button>
                 {dropdownOpen && (
                   <div className="avatar-dropdown">

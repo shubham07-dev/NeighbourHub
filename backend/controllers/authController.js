@@ -1,5 +1,4 @@
 const User = require('../models/User');
-const jwt = require('jsonwebtoken');
 const cloudinary = require('../config/cloudinary');
 const Provider = require('../models/Provider');
 const { OAuth2Client } = require('google-auth-library');
@@ -42,7 +41,7 @@ const register = async (req, res, next) => {
         providerData.location = { type: 'Point', coordinates: [Number(lng), Number(lat)] };
       }
       const provider = await Provider.create(providerData);
-      return res.status(201).json({ _id: provider._id, firstName: provider.firstName, email: provider.email, role: 'provider', token: `token-${provider._id}-provider` });
+      return res.status(201).json({ _id: provider._id, firstName: provider.firstName, email: provider.email, role: 'provider', profilePicture: provider.profilePicture, token: `token-${provider._id}-provider` });
 
     } else {
       const exists = await User.findOne({ email });
@@ -59,7 +58,7 @@ const register = async (req, res, next) => {
         firstName, lastName, email, password, phoneNumber,
         profilePicture: profilePictureUrl
       });
-      return res.status(201).json({ _id: user._id, firstName: user.firstName, email: user.email, role: 'customer', token: `token-${user._id}-customer` });
+      return res.status(201).json({ _id: user._id, firstName: user.firstName, email: user.email, role: 'customer', profilePicture: user.profilePicture, token: `token-${user._id}-customer` });
     }
   } catch (error) { next(error); }
 };
@@ -95,6 +94,7 @@ const login = async (req, res, next) => {
         email: account.email,
         role: role || 'customer',
         phoneNumber: account.phoneNumber,
+        profilePicture: account.profilePicture,
         token: `token-${account._id}-${role || 'customer'}`,
       });
     }

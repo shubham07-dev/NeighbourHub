@@ -32,7 +32,7 @@ const CustomerProfile = () => {
     setSaving(true);
     try {
       const { data } = await axios.put('/api/users/profile', form, { headers: { Authorization: `Bearer ${user.token}` } });
-      login({ ...user, firstName: data.firstName });
+      login({ ...user, firstName: data.firstName, profilePicture: data.profilePicture || user.profilePicture });
       setMsg('Profile updated successfully!');
       setTimeout(() => setMsg(''), 3000);
     } catch (err) { setMsg('Update failed'); }

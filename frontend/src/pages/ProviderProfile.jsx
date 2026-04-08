@@ -64,8 +64,8 @@ const ProviderProfile = () => {
     try {
       const payload = { ...form };
       if (location) { payload.lng = location.lng; payload.lat = location.lat; }
-      await axios.put('/api/providers/profile', payload, { headers: { Authorization: `Bearer ${user.token}` } });
-      login({ ...user, firstName: form.firstName });
+      const { data } = await axios.put('/api/providers/profile', payload, { headers: { Authorization: `Bearer ${user.token}` } });
+      login({ ...user, firstName: form.firstName, profilePicture: data.profilePicture || user.profilePicture });
       setMsg('Profile updated!');
       setTimeout(() => setMsg(''), 3000);
     } catch (err) { setMsg('Update failed'); }
