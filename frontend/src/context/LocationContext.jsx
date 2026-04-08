@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
+import { getEnglishAreaName } from '../utils/geocode';
 
 const LocationContext = createContext();
 
@@ -9,12 +10,8 @@ export const LocationProvider = ({ children }) => {
 
   const reverseGeocode = async (lat, lng) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16`);
-      const data = await res.json();
-      const addr = data.address || {};
-      const name = addr.suburb || addr.neighbourhood || addr.village || addr.town || addr.city_district || addr.city || 'Unknown Area';
-      const city = addr.city || addr.town || addr.state || '';
-      setAreaName(city ? `${name}, ${city}` : name);
+      const name = await getEnglishAreaName(lat, lng);
+      setAreaName(name);
     } catch {
       setAreaName('Location detected');
     }

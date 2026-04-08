@@ -64,6 +64,7 @@ const updateProviderProfile = async (req, res, next) => {
     provider.bio = req.body.bio || provider.bio;
     provider.serviceType = req.body.serviceType || provider.serviceType;
     provider.pricePerHour = req.body.pricePerHour || provider.pricePerHour;
+    provider.priceType = req.body.priceType || provider.priceType;
     provider.status = req.body.status || provider.status;
     provider.gender = req.body.gender || provider.gender;
     if (req.body.password) provider.password = req.body.password;

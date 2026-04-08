@@ -8,7 +8,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // @route   POST /api/auth/register
 const register = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, phoneNumber, role, serviceType, pricePerHour, bio, gender, lng, lat } = req.body;
+    const { firstName, lastName, email, password, phoneNumber, role, serviceType, pricePerHour, priceType, bio, gender, lng, lat } = req.body;
 
     if (!firstName || !email || !password || !role) {
       res.status(400);
@@ -16,6 +16,9 @@ const register = async (req, res, next) => {
     }
 
     if (role === 'provider') {
+      if (!gender) { res.status(400); throw new Error('Gender is required for providers'); }
+      if (!bio) { res.status(400); throw new Error('Short Bio is required for providers'); }
+      
       const exists = await Provider.findOne({ email });
       if (exists) { res.status(400); throw new Error('Provider already exists'); }
 
@@ -24,6 +27,7 @@ const register = async (req, res, next) => {
         firstName, lastName, email, password, phoneNumber,
         serviceType: serviceType || 'General',
         pricePerHour: pricePerHour || 0,
+        priceType: priceType || 'per_hour',
         bio, gender,
       };
       if (lng && lat) {

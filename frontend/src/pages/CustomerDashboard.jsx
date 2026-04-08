@@ -167,17 +167,18 @@ const CustomerDashboard = () => {
                     <h3>{p.firstName} {p.lastName}</h3>
                     <div className="provider-card-meta">
                       <span className="badge badge-service">{p.serviceType}</span>
+                      {p.gender && <span className="badge" style={{background: 'var(--bg-secondary)', color: 'var(--text-secondary)'}}>{p.gender}</span>}
                       <span className="provider-rating" style={{cursor: 'pointer'}} onClick={() => fetchReviews(p)}>
                         {renderStars(p.avgReviews)} <span style={{marginLeft: '0.2rem', textDecoration: 'underline'}}>({p.numberOfReviews || 0} reviews)</span>
                       </span>
                     </div>
                   </div>
-                  <div className="provider-price"><small>Cost: </small>₹{p.pricePerHour}</div>
+                  <div className="provider-price"><small>Cost: </small>₹{p.pricePerHour} / {p.priceType === 'per_day' ? 'day' : 'hr'}</div>
                 </div>
                 {p.bio && <p className="provider-bio">{p.bio}</p>}
                 <div className="provider-card-footer">
-                  <span className="provider-phone" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Phone size={14} /> {p.phoneNumber || 'N/A'}
+                  <span className="provider-phone" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', color: 'var(--text-muted)', fontStyle: 'italic', fontSize: '0.85rem' }}>
+                    <Phone size={14} /> Hidden until booked
                   </span>
                   <span className="badge badge-available">{p.status}</span>
                 </div>
@@ -192,7 +193,7 @@ const CustomerDashboard = () => {
                     />
                     <input
                       type="number"
-                      placeholder={`Propose Price (Optional, Base: ₹${p.pricePerHour})`}
+                      placeholder={`Propose Price (Optional, Base: ₹${p.pricePerHour} / ${p.priceType === 'per_day' ? 'day' : 'hr'})`}
                       value={proposedPrice}
                       onChange={e => setProposedPrice(e.target.value)}
                       style={{ width: '100%', padding: '0.6rem', marginBottom: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'white' }}

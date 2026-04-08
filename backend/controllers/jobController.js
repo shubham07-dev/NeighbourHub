@@ -10,7 +10,7 @@ const createJob = async (req, res, next) => {
     if (!providerDoc) { res.status(404); throw new Error('Provider not found'); }
 
     // Save to job natively
-    const jobData = { user: req.user._id, provider, description, status: 'pending', agreedPrice: providerDoc.pricePerHour };
+    const jobData = { user: req.user._id, provider, description, status: 'pending', agreedPrice: providerDoc.pricePerHour, priceType: providerDoc.priceType || 'per_hour' };
     
     if (proposedPrice) {
       if (Number(proposedPrice) < 100) {
@@ -72,6 +72,26 @@ const updateJobStatus = async (req, res, next) => {
 
     job.status = req.body.status;
     const updated = await job.save();
+
+    // Auto-update provider status
+    const providerId = job.provider;
+    const providerDoc = await Provider.findById(providerId);
+    if (providerDoc) {
+      if (['accepted', 'ongoing'].includes(req.body.status)) {
+        providerDoc.status = 'busy';
+        await providerDoc.save();
+      } else if (['completed', 'rejected', 'cancelled'].includes(req.body.status)) {
+        const activeJobsCount = await Job.countDocuments({
+          provider: providerId,
+          status: { $in: ['accepted', 'ongoing'] }
+        });
+        if (activeJobsCount === 0) {
+          providerDoc.status = 'available';
+          await providerDoc.save();
+        }
+      }
+    }
+
     res.json(updated);
   } catch (error) { next(error); }
 };

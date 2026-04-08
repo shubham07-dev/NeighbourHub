@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { MapPin, Check, X } from 'lucide-react';
+import { getEnglishAreaName } from '../utils/geocode';
 
 const ProviderProfile = () => {
   const { user, login } = useAuth();
-  const [form, setForm] = useState({ firstName: '', lastName: '', phoneNumber: '', bio: '', serviceType: '', pricePerHour: '', status: '', gender: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', phoneNumber: '', bio: '', serviceType: '', pricePerHour: '', priceType: 'per_hour', status: '', gender: '' });
   const [location, setLocation] = useState(null);
   const [locStatus, setLocStatus] = useState('');
   const [saving, setSaving] = useState(false);
@@ -19,11 +20,13 @@ const ProviderProfile = () => {
           firstName: data.firstName || '', lastName: data.lastName || '',
           phoneNumber: data.phoneNumber || '', bio: data.bio || '',
           serviceType: data.serviceType || '', pricePerHour: data.pricePerHour || '',
+          priceType: data.priceType || 'per_hour',
           status: data.status || 'available', gender: data.gender || ''
         });
         if (data.location?.coordinates) {
           setLocation({ lng: data.location.coordinates[0], lat: data.location.coordinates[1] });
-          setLocStatus(`Current: (${data.location.coordinates[1].toFixed(4)}, ${data.location.coordinates[0].toFixed(4)})`);
+          const name = await getEnglishAreaName(data.location.coordinates[1], data.location.coordinates[0]);
+          setLocStatus(`Current: ${name}`);
         }
       } catch (err) { console.error(err); }
     };
@@ -37,9 +40,10 @@ const ProviderProfile = () => {
     }
     setLocStatus('Fetching location...');
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         setLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude });
-        setLocStatus(`Updated to (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+        const name = await getEnglishAreaName(pos.coords.latitude, pos.coords.longitude);
+        setLocStatus(`Updated to ${name}`);
       },
       () => setLocStatus('Error: Location access denied')
     );
@@ -65,7 +69,7 @@ const ProviderProfile = () => {
         <div className="profile-avatar">{form.firstName?.charAt(0)?.toUpperCase()}</div>
         <div className="profile-info">
           <h2>{form.firstName} {form.lastName}</h2>
-          <p>{form.serviceType} — ₹{form.pricePerHour}</p>
+          <p>{form.serviceType} — ₹{form.pricePerHour} / {form.priceType === 'per_day' ? 'day' : 'hr'}</p>
         </div>
       </div>
 
@@ -96,18 +100,28 @@ const ProviderProfile = () => {
               </select>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
+              <label>Status</label>
+              <select value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
+                <option value="available">Available</option>
+                <option value="unavailable">Unavailable</option>
+                <option value="busy">Busy</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.2rem' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Base Service Cost (₹) <span style={{color: '#e74c3c'}}>*</span></label>
               <input required type="number" min="100" value={form.pricePerHour} onChange={e => setForm({...form, pricePerHour: e.target.value})} />
             </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label>Price Type *</label>
+              <select value={form.priceType} onChange={e => setForm({...form, priceType: e.target.value})} required>
+                <option value="per_hour">Per Hour</option>
+                <option value="per_day">Per Day</option>
+              </select>
+            </div>
           </div>
-          <div className="form-group">
-            <label>Status</label>
-            <select value={form.status} onChange={e => setForm({...form, status: e.target.value})}>
-              <option value="available">Available</option>
-              <option value="unavailable">Unavailable</option>
-              <option value="busy">Busy</option>
-            </select>
-          </div>
+
           <div className="form-group">
             <label>Bio <span style={{color: '#e74c3c'}}>*</span></label>
             <textarea required placeholder="give your experience ...... and other things fill it according yourself" value={form.bio} onChange={e => setForm({...form, bio: e.target.value})} rows="3" />

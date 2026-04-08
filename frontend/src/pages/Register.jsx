@@ -4,10 +4,11 @@ import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 import { MapPin, Check, X } from 'lucide-react';
+import { getEnglishAreaName } from '../utils/geocode';
 
 const Register = () => {
   const [role, setRole] = useState('customer');
-  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phoneNumber: '', serviceType: '', pricePerHour: '', bio: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', email: '', password: '', phoneNumber: '', serviceType: '', pricePerHour: '', priceType: 'per_hour', bio: '', gender: '' });
   const [location, setLocation] = useState(null);
   const [locStatus, setLocStatus] = useState('');
   const [error, setError] = useState('');
@@ -24,9 +25,10 @@ const Register = () => {
     }
     setLocStatus('Fetching location...');
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
         setLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude });
-        setLocStatus(`Location captured (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+        const name = await getEnglishAreaName(pos.coords.latitude, pos.coords.longitude);
+        setLocStatus(`Location captured (${name})`);
       },
       () => setLocStatus('Error: Location access denied. Please enable location access.')
     );
@@ -131,12 +133,30 @@ const Register = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label>Price Per Hour (₹)</label>
-                <input type="number" name="pricePerHour" value={form.pricePerHour} onChange={handleChange} />
+                <label>Gender *</label>
+                <select name="gender" value={form.gender} onChange={handleChange} required>
+                  <option value="">Select your gender</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.2rem' }}>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>Base Service Cost (₹)</label>
+                  <input type="number" name="pricePerHour" value={form.pricePerHour} onChange={handleChange} />
+                </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label>Price Type *</label>
+                  <select name="priceType" value={form.priceType} onChange={handleChange} required>
+                    <option value="per_hour">Per Hour</option>
+                    <option value="per_day">Per Day</option>
+                  </select>
+                </div>
               </div>
               <div className="form-group">
-                <label>Short Bio</label>
-                <textarea name="bio" value={form.bio} onChange={handleChange} rows="3" placeholder="Tell customers about your services..." />
+                <label>Short Bio *</label>
+                <textarea required name="bio" value={form.bio} onChange={handleChange} rows="3" placeholder="Tell customers about your services..." />
               </div>
               <div className="form-group">
                 <label>Your Service Location *</label>

@@ -24,6 +24,7 @@ const providerSchema = new mongoose.Schema({
   }],
   avgReviews: { type: Number, default: 0 },
   pricePerHour: { type: Number, required: true },
+  priceType: { type: String, enum: ['per_hour', 'per_day'], default: 'per_hour' },
   status: { type: String, enum: ['available', 'unavailable', 'busy'], default: 'available' },
   location: { type: pointSchema, index: '2dsphere' },
 }, { timestamps: true });

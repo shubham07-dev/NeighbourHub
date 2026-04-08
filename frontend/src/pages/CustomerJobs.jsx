@@ -111,7 +111,12 @@ const CustomerJobs = () => {
         </div>
       )}
 
-      {job.provider?.phoneNumber && <p className="text-sm text-muted mt-1" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}><Phone size={14} /> {job.provider.phoneNumber}</p>}
+      {job.provider?.phoneNumber && (
+        <p className="text-sm text-muted mt-1" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+          <Phone size={14} /> 
+          {['accepted', 'ongoing', 'completed'].includes(job.status) ? job.provider.phoneNumber : <span style={{fontStyle: 'italic'}}>Hidden until accepted</span>}
+        </p>
+      )}
 
       {['accepted', 'ongoing'].includes(job.status) && (
         <button
