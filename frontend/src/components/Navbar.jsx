@@ -16,9 +16,9 @@ const Navbar = () => {
 
   // Close dropdown on outside click
   useEffect(() => {
-    const handleClick = (e) => { 
+    const handleClick = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
-        setDropdownOpen(false); 
+        setDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClick);
@@ -77,7 +77,7 @@ const Navbar = () => {
           <Tag size={16} className="nav-icon" /> Offers
         </span>
         <span className="nav-item nav-item-static">
-          <HelpCircle size={16} className="nav-icon" /> Help
+          <span className="nav-icon">❓</span> Help
         </span>
 
         {!user ? (
@@ -92,8 +92,8 @@ const Navbar = () => {
             </Link>
 
             <div className="nav-avatar-wrap" ref={dropdownRef}>
-              <button 
-                className="nav-avatar" 
+              <button
+                className="nav-avatar"
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 style={{ width: mobileMenuOpen ? '100%' : '36px', borderRadius: mobileMenuOpen ? 'var(--radius-sm)' : '50%' }}
               >
@@ -106,11 +106,11 @@ const Navbar = () => {
                     <span>{user.email}</span>
                   </div>
                   <div className="dropdown-divider" />
-                  <Link to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} className="dropdown-item" onClick={() => { setDropdownOpen(false); closeMobileMenu(); }}>
-                    <User size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> Profile
+                  <Link to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                    👤 Profile
                   </Link>
-                  <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/jobs'} className="dropdown-item" onClick={() => { setDropdownOpen(false); closeMobileMenu(); }}>
-                    <ClipboardList size={14} style={{ marginRight: '0.4rem', verticalAlign: 'middle' }} /> My Jobs
+                  <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/jobs'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                    📋 My Jobs
                   </Link>
                   {user.role === 'admin' && (
                     <Link to="/admin" className="dropdown-item" onClick={() => { setDropdownOpen(false); closeMobileMenu(); }}>

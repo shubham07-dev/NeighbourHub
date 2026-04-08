@@ -8,7 +8,10 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState('overview');
 
-  useEffect(() => { fetchDashboard(); }, []);
+  const [agents, setAgents] = useState([]);
+  const [newAgent, setNewAgent] = useState({ name: '', email: '', password: '' });
+
+  useEffect(() => { fetchDashboard(); fetchAgents(); }, []);
 
   const fetchDashboard = async () => {
     try {
@@ -16,6 +19,13 @@ const AdminDashboard = () => {
       setData(d);
     } catch (err) { console.error(err); }
     finally { setLoading(false); }
+  };
+
+  const fetchAgents = async () => {
+    try {
+      const { data: a } = await axios.get('/api/admin/support-agents', { headers: { Authorization: `Bearer ${user.token}` } });
+      setAgents(a);
+    } catch (err) { console.error(err); }
   };
 
   const deleteUser = async (id) => {
@@ -28,6 +38,21 @@ const AdminDashboard = () => {
     if (!confirm('Delete this provider?')) return;
     await axios.delete(`/api/admin/providers/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
     fetchDashboard();
+  };
+
+  const handleCreateAgent = async (e) => {
+    e.preventDefault();
+    try {
+      await axios.post('/api/admin/support-agents', newAgent, { headers: { Authorization: `Bearer ${user.token}` } });
+      setNewAgent({ name: '', email: '', password: '' });
+      fetchAgents();
+    } catch (err) { alert(err.response?.data?.message || 'Failed to create agent'); }
+  };
+
+  const deleteAgent = async (id) => {
+    if (!confirm('Delete this support agent?')) return;
+    await axios.delete(`/api/admin/support-agents/${id}`, { headers: { Authorization: `Bearer ${user.token}` } });
+    fetchAgents();
   };
 
   if (loading) return <div className="loading">Loading admin panel...</div>;
@@ -47,10 +72,11 @@ const AdminDashboard = () => {
         <div className="stat-card"><div className="stat-number">{data.metrics.completedJobs}</div><div className="stat-label">Completed</div></div>
       </div>
 
-      <div className="role-selector" style={{marginBottom:'1.5rem',maxWidth:'400px'}}>
+      <div className="role-selector" style={{marginBottom:'1.5rem',maxWidth:'500px'}}>
         <button className={tab === 'overview' ? 'active' : ''} onClick={() => setTab('overview')}>Jobs</button>
         <button className={tab === 'users' ? 'active' : ''} onClick={() => setTab('users')}>Customers</button>
         <button className={tab === 'providers' ? 'active' : ''} onClick={() => setTab('providers')}>Providers</button>
+        <button className={tab === 'support' ? 'active' : ''} onClick={() => setTab('support')}>Support Team</button>
       </div>
 
       {tab === 'overview' && (
@@ -108,6 +134,39 @@ const AdminDashboard = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {tab === 'support' && (
+        <div className="grid-2" style={{gap:'2rem', alignItems: 'start'}}>
+          <div className="card" style={{padding: '1.5rem'}}>
+            <h3 style={{marginBottom:'1rem', color:'var(--accent)'}}>Create Support Agent</h3>
+            <form onSubmit={handleCreateAgent}>
+              <div className="form-group">
+                <input type="text" placeholder="Full Name" value={newAgent.name} onChange={e => setNewAgent({...newAgent, name: e.target.value})} required style={{width:'100%', padding:'0.6rem', marginBottom:'0.5rem'}} />
+                <input type="email" placeholder="Email" value={newAgent.email} onChange={e => setNewAgent({...newAgent, email: e.target.value})} required style={{width:'100%', padding:'0.6rem', marginBottom:'0.5rem'}} />
+                <input type="password" placeholder="Password" value={newAgent.password} onChange={e => setNewAgent({...newAgent, password: e.target.value})} required style={{width:'100%', padding:'0.6rem', marginBottom:'0.5rem'}} />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{width:'100%'}}>Create Agent</button>
+            </form>
+          </div>
+          
+          <div className="card table-container" style={{padding: '0'}}>
+            <table style={{width:'100%'}}>
+              <thead><tr><th>Name</th><th>Email</th><th>Status</th><th>Action</th></tr></thead>
+              <tbody>
+                {agents.map(a => (
+                  <tr key={a._id}>
+                    <td>{a.name}</td>
+                    <td>{a.email}</td>
+                    <td><span className={`badge`} style={{background: a.status === 'online' ? '#2ecc7122' : '#e74c3c22', color: a.status === 'online' ? '#2ecc71' : '#e74c3c'}}>{a.status}</span></td>
+                    <td><button className="btn btn-danger btn-sm" onClick={() => deleteAgent(a._id)}>Revoke</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            {agents.length === 0 && <div className="empty">No support agents exist yet.</div>}
+          </div>
         </div>
       )}
     </div>

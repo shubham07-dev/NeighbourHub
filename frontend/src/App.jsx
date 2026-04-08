@@ -11,6 +11,10 @@ import CustomerProfile from './pages/CustomerProfile';
 import ProviderDashboard from './pages/ProviderDashboard';
 import ProviderProfile from './pages/ProviderProfile';
 import AdminDashboard from './pages/AdminDashboard';
+import Help from './pages/Help';
+import TicketChat from './pages/TicketChat';
+import SupportLogin from './pages/SupportLogin';
+import SupportDashboard from './pages/SupportDashboard';
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user } = useAuth();
@@ -38,6 +42,15 @@ function AppRoutes() {
 
       {/* Admin Routes */}
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin']}><AdminDashboard /></ProtectedRoute>} />
+
+      {/* Shared Help & Ticket Routes (Must be logged in to chat, but help can be viewed publically ideally, though protected here to match design) */}
+      <Route path="/help" element={<Help />} />
+      <Route path="/help/ticket/:id" element={<ProtectedRoute allowedRoles={['customer', 'provider']}><TicketChat /></ProtectedRoute>} />
+
+      {/* Support Agent Routes */}
+      <Route path="/support" element={user && user.role === 'support' ? <Navigate to="/support/dashboard" /> : <SupportLogin />} />
+      <Route path="/support/dashboard" element={<ProtectedRoute allowedRoles={['support']}><SupportDashboard /></ProtectedRoute>} />
+      <Route path="/support/ticket/:id" element={<ProtectedRoute allowedRoles={['support']}><TicketChat /></ProtectedRoute>} />
 
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

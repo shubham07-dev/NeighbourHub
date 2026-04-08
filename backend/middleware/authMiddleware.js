@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const Provider = require('../models/Provider');
+const SupportAgent = require('../models/SupportAgent');
 
 const protect = async (req, res, next) => {
   try {
@@ -29,6 +30,8 @@ const protect = async (req, res, next) => {
     let account;
     if (role === 'provider') {
       account = await Provider.findById(id).select('-password');
+    } else if (role === 'support') {
+      account = await SupportAgent.findById(id).select('-password');
     } else {
       account = await User.findById(id).select('-password');
     }
