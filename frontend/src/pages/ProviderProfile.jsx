@@ -65,7 +65,7 @@ const ProviderProfile = () => {
         <div className="profile-avatar">{form.firstName?.charAt(0)?.toUpperCase()}</div>
         <div className="profile-info">
           <h2>{form.firstName} {form.lastName}</h2>
-          <p>{form.serviceType} — ₹{form.pricePerHour}/hr</p>
+          <p>{form.serviceType} — ₹{form.pricePerHour}</p>
         </div>
       </div>
 
@@ -96,7 +96,7 @@ const ProviderProfile = () => {
               </select>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
-              <label>Price Per Hour (₹)</label>
+              <label>Base Service Cost (₹)</label>
               <input type="number" value={form.pricePerHour} onChange={e => setForm({...form, pricePerHour: e.target.value})} />
             </div>
           </div>

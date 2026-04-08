@@ -64,4 +64,27 @@ const updateProviderProfile = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { getNearbyProviders, getAllProviders, getProviderById, updateProviderProfile };
+// @desc    Get provider reviews
+// @route   GET /api/providers/:id/reviews
+const getProviderReviews = async (req, res, next) => {
+  try {
+    const Job = require('../models/Job');
+    const jobsWithReviews = await Job.find({ 
+      provider: req.params.id, 
+      'reviews.rating': { $exists: true } 
+    }).populate('user', 'firstName lastName').sort('-updatedAt');
+    
+    // Map to a cleaner format
+    const reviews = jobsWithReviews.map(job => ({
+      _id: job._id,
+      rating: job.reviews.rating,
+      comment: job.reviews.comment,
+      reviewerName: job.user ? `${job.user.firstName} ${job.user.lastName}` : 'Anonymous',
+      date: job.updatedAt
+    }));
+
+    res.json(reviews);
+  } catch (error) { next(error); }
+};
+
+module.exports = { getNearbyProviders, getAllProviders, getProviderById, updateProviderProfile, getProviderReviews };

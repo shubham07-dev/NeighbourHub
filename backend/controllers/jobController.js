@@ -4,10 +4,28 @@ const Provider = require('../models/Provider');
 // @desc    Create a job (customer books a provider)
 const createJob = async (req, res, next) => {
   try {
-    const { provider, description, lng, lat, houseNumber, city, area } = req.body;
+    const { provider, description, lng, lat, houseNumber, city, area, proposedPrice } = req.body;
     
+    const providerDoc = await Provider.findById(provider);
+    if (!providerDoc) { res.status(404); throw new Error('Provider not found'); }
+
     // Save to job natively
-    const jobData = { user: req.user._id, provider, description, status: 'pending' };
+    const jobData = { user: req.user._id, provider, description, status: 'pending', agreedPrice: providerDoc.pricePerHour };
+    
+    if (proposedPrice) {
+      if (Number(proposedPrice) < 100) {
+        res.status(400); throw new Error('Proposed price cannot be lower than ₹100');
+      }
+      if (Number(proposedPrice) !== providerDoc.pricePerHour) {
+        jobData.negotiation = {
+          isNegotiating: true,
+          price: Number(proposedPrice),
+          proposedBy: 'customer',
+          roundCount: 1
+        };
+      }
+    }
+
     if (lng && lat) jobData.serviceLocation = { type: 'Point', coordinates: [Number(lng), Number(lat)] };
     if (houseNumber || city || area) jobData.address = { houseNumber, city, area };
 
@@ -46,6 +64,11 @@ const updateJobStatus = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
     if (!job) { res.status(404); throw new Error('Job not found'); }
+
+    if (req.body.status === 'accepted' && job.negotiation?.isNegotiating) {
+      job.negotiation.isNegotiating = false;
+      job.agreedPrice = job.negotiation.price;
+    }
 
     job.status = req.body.status;
     const updated = await job.save();
@@ -107,4 +130,56 @@ const updateLiveLocation = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { createJob, getMyJobs, getProviderJobs, updateJobStatus, addReview, getAllJobs, updateLiveLocation };
+// @desc    Negotiate price
+// @route   PUT /api/jobs/:id/negotiate
+const negotiatePrice = async (req, res, next) => {
+  try {
+    const { price } = req.body;
+    if (!price || Number(price) < 100) { res.status(400); throw new Error('Please provide a valid price (Minimum ₹100)'); }
+
+    const job = await Job.findById(req.params.id);
+    if (!job) { res.status(404); throw new Error('Job not found'); }
+    
+    if (job.status !== 'pending') {
+      res.status(400); throw new Error('Job is no longer pending pending, cannot negotiate');
+    }
+
+    if (job.negotiation?.roundCount >= 4) {
+      res.status(400); throw new Error('Maximum negotiation rounds (4) reached.');
+    }
+
+    // Since token role for provider is sometimes implicitly set, we check req.user.role
+    const role = req.user.role || (req.user.serviceType ? 'provider' : 'customer');
+
+    job.negotiation = {
+      isNegotiating: true,
+      price: Number(price),
+      proposedBy: role,
+      roundCount: (job.negotiation?.roundCount || 0) + 1
+    };
+
+    const updated = await job.save();
+    res.json(updated);
+  } catch (error) { next(error); }
+};
+
+// @desc    Accept proposed price
+// @route   PUT /api/jobs/:id/accept-price
+const acceptPrice = async (req, res, next) => {
+  try {
+    const job = await Job.findById(req.params.id);
+    if (!job) { res.status(404); throw new Error('Job not found'); }
+
+    if (!job.negotiation || !job.negotiation.isNegotiating) {
+      res.status(400); throw new Error('No active negotiation');
+    }
+
+    job.agreedPrice = job.negotiation.price;
+    job.negotiation.isNegotiating = false;
+    
+    const updated = await job.save();
+    res.json(updated);
+  } catch (error) { next(error); }
+};
+
+module.exports = { createJob, getMyJobs, getProviderJobs, updateJobStatus, addReview, getAllJobs, updateLiveLocation, negotiatePrice, acceptPrice };

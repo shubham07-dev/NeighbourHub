@@ -17,6 +17,13 @@ const jobSchema = new mongoose.Schema({
     default: 'pending',
   },
   description: { type: String },
+  agreedPrice: { type: Number }, // the finalized base cost for the service
+  negotiation: {
+    isNegotiating: { type: Boolean, default: false },
+    price: { type: Number },
+    proposedBy: { type: String, enum: ['customer', 'provider'] },
+    roundCount: { type: Number, default: 0 } // max 4 rounds as requested
+  },
   serviceLocation: {
     type: { type: String, enum: ['Point'] },
     coordinates: { type: [Number] }
