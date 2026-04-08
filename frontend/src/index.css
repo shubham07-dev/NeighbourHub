@@ -44,13 +44,23 @@ body {
   font-family: 'Inter', sans-serif;
   background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(circle at 15% 50%, rgba(107, 76, 255, 0.12), transparent 25%),
-    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.1), transparent 25%);
+    radial-gradient(circle at 15% 50%, rgba(107, 76, 255, 0.15), transparent 40%),
+    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.12), transparent 40%),
+    radial-gradient(circle at 50% 80%, rgba(16, 185, 129, 0.08), transparent 40%);
   background-attachment: fixed;
+  background-size: 200% 200%;
+  animation: floatBackground 20s ease-in-out infinite alternate;
   color: var(--text-primary);
   min-height: 100vh;
   line-height: 1.6;
   letter-spacing: -0.01em;
+}
+
+@keyframes floatBackground {
+  0% { background-position: 0% 0%; }
+  33% { background-position: 100% 50%; }
+  66% { background-position: 50% 100%; }
+  100% { background-position: 0% 100%; }
 }
 
 a { color: var(--accent); text-decoration: none; transition: var(--transition); }
