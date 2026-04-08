@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { ClipboardList, RefreshCw, Map, CheckCircle, Star, XCircle, Phone, Check } from 'lucide-react';
+import { ClipboardList, RefreshCw, Map, CheckCircle, Star, XCircle, Phone, Check, Video } from 'lucide-react';
 
 const CustomerJobs = () => {
   const { user } = useAuth();
@@ -10,6 +10,7 @@ const CustomerJobs = () => {
   const [reviewData, setReviewData] = useState({ jobId: null, rating: 5, comment: '' });
   const [negotiatePrice, setNegotiatePrice] = useState({});
   const [filterView, setFilterView] = useState('all');
+  const [activeVideoCall, setActiveVideoCall] = useState(null);
   const intervalRef = useRef(null);
 
   const fetchJobs = async () => {
@@ -119,13 +120,22 @@ const CustomerJobs = () => {
       )}
 
       {['accepted', 'ongoing'].includes(job.status) && (
-        <button
-          className="btn btn-route mt-1"
-          onClick={() => openRoute(job.provider?.location, job.user?.location)}
-          style={{ width: '100%', justifyContent: 'center', marginTop: '1rem' }}
-        >
-          <Map size={16} /> Show Route on Map
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+          <button
+            className="btn btn-route mt-1"
+            onClick={() => openRoute(job.provider?.location, job.user?.location)}
+            style={{ flex: 1, justifyContent: 'center', marginTop: 0 }}
+          >
+            <Map size={16} /> Map
+          </button>
+          <button
+            className="btn btn-success mt-1"
+            onClick={() => setActiveVideoCall(job._id)}
+            style={{ flex: 1, justifyContent: 'center', marginTop: 0, background: '#2ecc71', color: '#fff' }}
+          >
+            <Video size={16} /> Video Call
+          </button>
+        </div>
       )}
 
       {job.status === 'completed' && (
@@ -262,6 +272,22 @@ const CustomerJobs = () => {
         ) : (
            <div className="empty-state" style={{ marginTop: '2rem', textAlign: 'center', color: 'var(--text-muted)' }}>0 Rejected Jobs</div>
         )
+      )}
+
+      {/* Video Call Modal */}
+      {activeVideoCall && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: '#000', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '1rem', background: 'var(--bg-secondary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+            <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Video /> Live Video Call</h3>
+            <button onClick={() => setActiveVideoCall(null)} className="btn btn-primary btn-sm" style={{ background: '#e74c3c', border: 'none', color: '#fff' }}>End Call</button>
+          </div>
+          <iframe 
+            src={`https://meet.jit.si/NeighbourHub_Job_${activeVideoCall}`} 
+            style={{ flex: 1, border: 'none', width: '100%', height: '100%' }}
+            allow="camera; microphone; fullscreen; display-capture"
+            title="Video Call"
+          />
+        </div>
       )}
     </div>
   );

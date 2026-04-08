@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
-import { Inbox, Phone, Check, X, Wrench, Play, Map, CheckCircle, Star } from 'lucide-react';
+import { Inbox, Phone, Check, X, Wrench, Play, Map, CheckCircle, Star, Video } from 'lucide-react';
 
 const ProviderDashboard = () => {
   const { user } = useAuth();
@@ -9,6 +9,7 @@ const ProviderDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [negotiatePrice, setNegotiatePrice] = useState({});
   const [filterView, setFilterView] = useState('all');
+  const [activeVideoCall, setActiveVideoCall] = useState(null);
   const intervalRef = useRef(null);
 
   const fetchJobs = async () => {
@@ -115,12 +116,23 @@ const ProviderDashboard = () => {
         <div className="flex gap-1 mt-2" style={{flexWrap: 'wrap'}}>
           {job.status === 'accepted' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'ongoing')} style={{flex: 1, justifyContent: 'center'}}><Play size={16} /> Start Work</button>}
           {job.status === 'ongoing' && <button className="btn btn-success btn-sm" onClick={() => updateStatus(job._id, 'completed')} style={{flex: 1, justifyContent: 'center'}}><Check size={16} /> Mark Complete</button>}
+        </div>
+      )}
+      {['accepted', 'ongoing'].includes(job.status) && (
+        <div className="flex gap-1 mt-1" style={{flexWrap: 'wrap'}}>
           <button
             className="btn btn-route btn-sm"
             onClick={() => openRoute(job.provider?.location || user.location, job.user?.location)}
             style={{flex: 1, justifyContent: 'center'}}
           >
             <Map size={16} /> Navigate
+          </button>
+          <button
+            className="btn btn-success btn-sm"
+            onClick={() => setActiveVideoCall(job._id)}
+            style={{flex: 1, justifyContent: 'center', background: '#2ecc71', color: '#fff'}}
+          >
+            <Video size={16} /> Video Call
           </button>
         </div>
       )}
@@ -241,6 +253,22 @@ const ProviderDashboard = () => {
         )
       )}
 
+
+      {/* Video Call Modal */}
+      {activeVideoCall && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, background: '#000', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ padding: '1rem', background: 'var(--bg-secondary)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)' }}>
+            <h3 style={{ margin: 0, color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Video /> Live Video Call</h3>
+            <button onClick={() => setActiveVideoCall(null)} className="btn btn-primary btn-sm" style={{ background: '#e74c3c', border: 'none', color: '#fff' }}>End Call</button>
+          </div>
+          <iframe 
+            src={`https://meet.jit.si/NeighbourHub_Job_${activeVideoCall}`} 
+            style={{ flex: 1, border: 'none', width: '100%', height: '100%' }}
+            allow="camera; microphone; fullscreen; display-capture"
+            title="Video Call"
+          />
+        </div>
+      )}
 
     </div>
   );
