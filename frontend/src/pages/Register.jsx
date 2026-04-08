@@ -151,6 +151,7 @@ const Register = () => {
                   <select name="priceType" value={form.priceType} onChange={handleChange} required>
                     <option value="per_hour">Per Hour</option>
                     <option value="per_day">Per Day</option>
+                    <option value="per_month">Per Month</option>
                   </select>
                 </div>
               </div>

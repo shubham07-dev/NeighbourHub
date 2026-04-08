@@ -173,7 +173,7 @@ const CustomerDashboard = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="provider-price"><small>Cost: </small>₹{p.pricePerHour} / {p.priceType === 'per_day' ? 'day' : 'hr'}</div>
+                  <div className="provider-price"><small>Cost: </small>₹{p.pricePerHour} / {p.priceType === 'per_month' ? 'month' : p.priceType === 'per_day' ? 'day' : 'hr'}</div>
                 </div>
                 {p.bio && <p className="provider-bio">{p.bio}</p>}
                 <div className="provider-card-footer">
@@ -193,7 +193,7 @@ const CustomerDashboard = () => {
                     />
                     <input
                       type="number"
-                      placeholder={`Propose Price (Optional, Base: ₹${p.pricePerHour} / ${p.priceType === 'per_day' ? 'day' : 'hr'})`}
+                      placeholder={`Propose Price (Optional, Base: ₹${p.pricePerHour} / ${p.priceType === 'per_month' ? 'month' : p.priceType === 'per_day' ? 'day' : 'hr'})`}
                       value={proposedPrice}
                       onChange={e => setProposedPrice(e.target.value)}
                       style={{ width: '100%', padding: '0.6rem', marginBottom: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'white' }}

@@ -69,7 +69,7 @@ const ProviderProfile = () => {
         <div className="profile-avatar">{form.firstName?.charAt(0)?.toUpperCase()}</div>
         <div className="profile-info">
           <h2>{form.firstName} {form.lastName}</h2>
-          <p>{form.serviceType} — ₹{form.pricePerHour} / {form.priceType === 'per_day' ? 'day' : 'hr'}</p>
+          <p>{form.serviceType} — ₹{form.pricePerHour} / {form.priceType === 'per_month' ? 'month' : form.priceType === 'per_day' ? 'day' : 'hr'}</p>
         </div>
       </div>
 
@@ -118,6 +118,7 @@ const ProviderProfile = () => {
               <select value={form.priceType} onChange={e => setForm({...form, priceType: e.target.value})} required>
                 <option value="per_hour">Per Hour</option>
                 <option value="per_day">Per Day</option>
+                <option value="per_month">Per Month</option>
               </select>
             </div>
           </div>
