@@ -22,11 +22,15 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/neighbourhood-service';
-mongoose.connect(MONGO_URI)
+// Database connection
+if (!process.env.MONGO_URI) {
+  console.error('❌ FATAL ERROR: MONGO_URI is not defined in .env file.');
+  process.exit(1);
+}
+
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
-  .catch((err) => console.error('❌ MongoDB Error:', err.message));
+  .catch(err => console.error('❌ MongoDB Error:', err.message));
 
 // Routes
 app.use('/api/auth', authRoutes);
