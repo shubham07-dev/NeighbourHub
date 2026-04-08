@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { LocationProvider } from './context/LocationContext';
 import Navbar from './components/Navbar';
+import Footer from './components/Footer';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -21,6 +23,14 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   if (!user) return <Navigate to="/login" />;
   if (allowedRoles && !allowedRoles.includes(user.role)) return <Navigate to="/" />;
   return children;
+};
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
 };
 
 function AppRoutes() {
@@ -62,8 +72,14 @@ function App() {
     <AuthProvider>
       <LocationProvider>
         <Router>
-          <Navbar />
-          <AppRoutes />
+          <ScrollToTop />
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Navbar />
+            <main style={{ flex: 1 }}>
+              <AppRoutes />
+            </main>
+            <Footer />
+          </div>
         </Router>
       </LocationProvider>
     </AuthProvider>

@@ -9,8 +9,8 @@ const Landing = () => (
         <h1>Your Neighbourhood<br />Services, On Demand</h1>
         <p>Connect with trusted local plumbers, electricians, tutors, and delivery agents in minutes. Just like ordering food — but for home services.</p>
         <div className="hero-actions">
-          <Link to="/register" className="btn btn-primary" style={{ padding: '0.8rem 2rem', fontSize: '1rem' }}>Get Started Free</Link>
-          <Link to="/login" className="btn btn-secondary" style={{ padding: '0.8rem 2rem', fontSize: '1rem' }}>Sign In</Link>
+          <Link to="/register" className="btn btn-primary" style={{ padding: '0.8rem 2rem',marginTop:'2rem', fontSize: '1rem' }}>Get Started Free</Link>
+          <Link to="/login" className="btn btn-secondary" style={{ padding: '0.8rem 2rem',marginTop:'2rem', fontSize: '1rem' }}>Sign In</Link>
         </div>
       </div>
       <div className="hero-floating-house">🏠</div>

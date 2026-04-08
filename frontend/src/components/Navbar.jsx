@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
@@ -12,6 +13,7 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [jobCount, setJobCount] = useState(0);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const dropdownRef = useRef(null);
 
   // Close dropdown on outside click
@@ -55,7 +57,7 @@ const Navbar = () => {
   return (
     <nav className="navbar-new">
       <div className="navbar-left">
-        <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
+        <Link to="/" className="navbar-logo" onClick={() => { closeMobileMenu(); window.scrollTo(0, 0); }}>
           <Home size={20} /> <span>NeighbourHub</span>
         </Link>
         <button className="navbar-location" onClick={detectLocation} title="Click to refresh location">
@@ -70,9 +72,15 @@ const Navbar = () => {
       </button>
 
       <div className={`navbar-right ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-        <Link to={user ? (user.role === 'provider' ? '/provider/dashboard' : '/customer/dashboard') : '/'} className="nav-item" onClick={closeMobileMenu}>
-          <Search size={16} className="nav-icon" /> Search
-        </Link>
+        {user ? (
+          <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/dashboard'} className="nav-item" onClick={closeMobileMenu}>
+            <Search size={16} className="nav-icon" /> Search
+          </Link>
+        ) : (
+          <button className="nav-item" style={{background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center'}} onClick={() => { closeMobileMenu(); setShowLoginPrompt(true); }}>
+            <Search size={16} className="nav-icon" /> Search
+          </button>
+        )}
 
         <Link to="/help" className="nav-item" onClick={closeMobileMenu}>
           <HelpCircle size={16} className="nav-icon" /> Help
@@ -144,6 +152,22 @@ const Navbar = () => {
           </>
         )}
       </div>
+
+      {/* Login Prompt Modal */}
+      {showLoginPrompt && createPortal(
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 99999 }}>
+          <div style={{ background: '#0f0f15', border: '1px solid #2a2a35', borderRadius: '16px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.8)', width: '90%', maxWidth: '400px', textAlign: 'center',justifyContent:'center', padding: '2rem', animation: 'slideDown 0.3s ease' }}>
+            <div style={{ fontSize: '3rem', margin: '0 auto 3.5rem', background: '#1c1c26', width: '80px', height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', boxShadow: 'inset 0 2px 10px rgba(255,255,255,0.05)' }}>🔒</div>
+            <h3 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: 'white', fontWeight: '700' }}>Login Required</h3>
+            <p style={{ color: '#a0a0b0', marginBottom: '2rem', fontSize: '1rem', lineHeight: '1.5' }}>You must sign in or create an account to search and connect with service providers in your area.</p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button className="btn" onClick={() => setShowLoginPrompt(false)} style={{ flex: 1, background: '#252530', color: 'white' }}>Cancel</button>
+              <Link to="/login" className="btn btn-primary" onClick={() => setShowLoginPrompt(false)} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>Sign In</Link>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </nav>
   );
 };
