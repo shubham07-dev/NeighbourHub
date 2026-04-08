@@ -2,30 +2,71 @@
 
 ---
 
-# 🚀 Neighbourhood Service Marketplace
+# 🚀 NeighbourLink – AI-Powered Neighbourhood Service Marketplace
 
 <p align="center">
-  <b>🛠️ Work In Progress | Kalpathon Hackathon</b><br/>
-  <b>Team Alpha Coders | Team ID: KPT013</b>
+  <b>⚡ Smart • Local • Reliable</b><br/>
+  <b>Team Alpha Coders</b>
 </p>
 
 ---
 
-## ⚡ Project Status
+## 🆔 Team Information
 
-🚧 This project is currently under active development as part of **Kalpathon Hackathon**.
-New features are being added continuously.
+* **Team Name:** Alpha Coders
+* **Team ID:** KPT013
+* **Track:** Track-1
 
 ---
 
-## 👨‍💻 Team Details
+## 🌟 Overview
 
-**Team Name:** Alpha Coders
-**Track:** Track-1
+**NeighbourLink** is an AI-powered hyperlocal service marketplace that connects users with trusted nearby service providers such as:
+
+* 🔧 Plumbers
+* ⚡ Electricians
+* 👨‍🏫 Tutors
+* 🚚 Delivery Agents
+
+Our platform aims to **digitize local services**, making them accessible, reliable, and efficient.
+
+---
+
+## 🎯 Problem Statement
+
+Neighbourhood Service Marketplace - Build a full-stack platform connecting **local service providers** with customers.
+
+---
+
+## 💡 Our Solution
+
+NeighbourLink provides:
+
+* 📍 Location-based service discovery
+* 🤖 AI-powered recommendations
+* ⭐ Verified ratings & reviews
+* ⚡ Real-time booking & tracking
+
+---
+
+## 🚧 Project Status
+
+🚀 Actively being built during **Kalpathon Hackathon**
+
+| Module               | Status         |
+| -------------------- | -------------- |
+| Frontend UI          | ✅ Done        |
+| Backend APIs         | 🚧 Done        |
+| Authentication       | ⏳ Done        |
+| Database Integration | ⏳ Done        |
+
+---
+
+## 👨‍💻 Team Alpha Coders
 
 ### 👑 Team Leader
 
-* Ujjwal Srivastava
+* **Ujjwal Srivastava - Full Stack Developer**
 
 ### 🤝 Team Members
 
@@ -35,28 +76,14 @@ New features are being added continuously.
 
 ---
 
-## 📌 Problem Statement
+## ✨ Key Features
 
-Neighbourhood Service Marketplace - Build a full-stack platform connecting **local service providers** (plumbers, tutors, electricians, delivery agents) with customers.
-
----
-
-## 💡 Project Vision
-
-We are building a **Neighbourhood Service Marketplace** that simplifies how users find and book trusted local services, while empowering service providers with digital tools.
-
----
-
-## ✨ Planned Features
-
-* 🔐 Authentication System
-* 🔍 Smart Search for Services
+* 🔐 Authentication (JWT-based)
+* 🔍 Smart AI Search
 * 📅 Booking System
+* 📍 Real-time Tracking
 * ⭐ Ratings & Reviews
-* 👨‍🏫 Tutor Dashboard
-* 🔧 Plumber Dashboard
-* ⚡ Electrician Dashboard
-* 🚚 Delivery Agent Dashboard
+* 🧑‍💼 Role-based Dashboards
 * 🛡️ Admin Panel
 
 ---
@@ -71,35 +98,45 @@ We are building a **Neighbourhood Service Marketplace** that simplifies how user
 
 ---
 
-## 📂 Project Structure (In Progress)
+## 📂 Project Structure
 
 ```
 Alpha-Coders_Ujjwal-Srivastava/
 │
-├── client/        # Frontend (building...)
-├── server/        # Backend (building...)
-├── README.md
-└── .env
+├── client/        # React Frontend
+├── backend/       # Express Backend
+├── .env
+└── README.md
 ```
 
 ---
 
-## 🚀 Current Progress
+## ⚙️ Installation & Setup
 
-* ✅ Repository setup completed
-* ✅ Team structure defined
-* 🚧 Backend setup in progress
-* 🚧 Frontend UI development started
-* ⏳ Database integration pending
+### 🔹 Backend
+
+```bash
+cd backend
+npm install
+npm start
+```
+
+### 🔹 Frontend
+
+```bash
+cd client
+npm install
+npm run dev
+```
 
 ---
 
-## 🔮 Upcoming Tasks
+## 🔮 Future Enhancements
 
-* 🔜 Authentication (JWT)
-* 🔜 Service booking system
-* 🔜 Dashboard UI
-* 🔜 Deployment
+* 🤖 AI Chatbot
+* 💳 Payment Integration
+* 🔔 Notifications
+* 📊 Analytics Dashboard
 
 ---
 
@@ -109,11 +146,8 @@ Alpha-Coders_Ujjwal-Srivastava/
 
 ---
 
-## 💬 Stay Tuned
+## 💬 Final Note
 
-🔥 We are actively building and improving this project during the hackathon.
-✨ Exciting features and updates are coming soon!
+🔥 Built with innovation during **Kalpathon Hackathon**
 
-👉 **Stay tuned 🚀**
-
----
+🚀 *Team Alpha Coders is ready to deliver impact!*
