@@ -62,8 +62,11 @@ const Navbar = () => {
           <span className="nav-icon">🏷️</span> Offers
         </span>
         <span className="nav-item nav-item-static">
-          <span className="nav-icon">❓</span> Help
+          <span className="nav-icon">🏷️</span> Offers
         </span>
+        <Link to="/help" className="nav-item">
+          <span className="nav-icon">❓</span> Help
+        </Link>
 
         {!user ? (
           <Link to="/login" className="nav-item nav-signin">
@@ -87,12 +90,21 @@ const Navbar = () => {
                     <span>{user.email}</span>
                   </div>
                   <div className="dropdown-divider" />
-                  <Link to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                    👤 Profile
-                  </Link>
-                  <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/jobs'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
-                    📋 My Jobs
-                  </Link>
+                  {user.role !== 'support' && (
+                    <>
+                      <Link to={user.role === 'provider' ? '/provider/profile' : '/customer/profile'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                        👤 Profile
+                      </Link>
+                      <Link to={user.role === 'provider' ? '/provider/dashboard' : '/customer/jobs'} className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                        📋 My Jobs
+                      </Link>
+                    </>
+                  )}
+                  {user.role === 'support' && (
+                    <Link to="/support/dashboard" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                      🎧 Agent Dashboard
+                    </Link>
+                  )}
                   {user.role === 'admin' && (
                     <Link to="/admin" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
                       ⚙️ Admin Dashboard
