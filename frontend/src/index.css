@@ -773,6 +773,7 @@ tr:hover { background: rgba(233, 69, 96, 0.03); }
   border: none;
   cursor: pointer;
   padding: 0.5rem;
+  margin-right: 0.5rem;
   outline: none;
 }
 
