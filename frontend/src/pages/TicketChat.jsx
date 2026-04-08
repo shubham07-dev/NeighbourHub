@@ -25,8 +25,7 @@ const TicketChat = () => {
 
   const fetchTicket = async () => {
     try {
-      const endpoint = user.role === 'support' ? `/api/support-agent/tickets/${id}` : `/api/support/tickets/${id}`;
-      const { data } = await axios.get(endpoint, {
+      const { data } = await axios.get(`/api/support/tickets/${id}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setTicket(data);
@@ -57,8 +56,7 @@ const TicketChat = () => {
     }]);
 
     try {
-      const endpoint = user.role === 'support' ? `/api/support-agent/tickets/${id}/messages` : `/api/support/tickets/${id}/messages`;
-      await axios.post(endpoint, { text: textToSend }, {
+      await axios.post(`/api/support/tickets/${id}/messages`, { text: textToSend }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       await fetchTicket();

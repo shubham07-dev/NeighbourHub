@@ -73,12 +73,10 @@ const Navbar = () => {
         <Link to={user ? (user.role === 'provider' ? '/provider/dashboard' : '/customer/dashboard') : '/'} className="nav-item" onClick={closeMobileMenu}>
           <Search size={16} className="nav-icon" /> Search
         </Link>
-        <span className="nav-item nav-item-static">
-          <Tag size={16} className="nav-icon" /> Offers
-        </span>
-        <span className="nav-item nav-item-static">
-          <span className="nav-icon">❓</span> Help
-        </span>
+
+        <Link to="/help" className="nav-item" onClick={closeMobileMenu}>
+          <HelpCircle size={16} className="nav-icon" /> Help
+        </Link>
 
         {!user ? (
           <Link to="/login" className="nav-item nav-signin" onClick={closeMobileMenu}>
