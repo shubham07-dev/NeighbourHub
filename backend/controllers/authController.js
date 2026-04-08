@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const jwt = require('jsonwebtoken');
+const cloudinary = require('../config/cloudinary');
 const Provider = require('../models/Provider');
 const { OAuth2Client } = require('google-auth-library');
 
@@ -8,7 +10,7 @@ const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 // @route   POST /api/auth/register
 const register = async (req, res, next) => {
   try {
-    const { firstName, lastName, email, password, phoneNumber, role, serviceType, pricePerHour, priceType, bio, gender, lng, lat } = req.body;
+    const { firstName, lastName, email, password, phoneNumber, role, serviceType, pricePerHour, priceType, bio, gender, lng, lat, profilePicture } = req.body;
 
     if (!firstName || !email || !password || !role) {
       res.status(400);
@@ -22,13 +24,19 @@ const register = async (req, res, next) => {
       const exists = await Provider.findOne({ email });
       if (exists) { res.status(400); throw new Error('Provider already exists'); }
 
+      let profilePictureUrl = null;
+      if (profilePicture && profilePicture.startsWith('data:image')) {
+        const uploadRes = await cloudinary.uploader.upload(profilePicture, { folder: 'kalpathon_profiles' });
+        profilePictureUrl = uploadRes.secure_url;
+      }
+
       const providerData = {
         googleId: `local-${Date.now()}`,
         firstName, lastName, email, password, phoneNumber,
         serviceType: serviceType || 'General',
         pricePerHour: pricePerHour || 0,
         priceType: priceType || 'per_hour',
-        bio, gender,
+        bio, gender, profilePicture: profilePictureUrl,
       };
       if (lng && lat) {
         providerData.location = { type: 'Point', coordinates: [Number(lng), Number(lat)] };
@@ -40,9 +48,16 @@ const register = async (req, res, next) => {
       const exists = await User.findOne({ email });
       if (exists) { res.status(400); throw new Error('User already exists'); }
 
+      let profilePictureUrl = null;
+      if (profilePicture && profilePicture.startsWith('data:image')) {
+        const uploadRes = await cloudinary.uploader.upload(profilePicture, { folder: 'kalpathon_profiles' });
+        profilePictureUrl = uploadRes.secure_url;
+      }
+
       const user = await User.create({
         googleId: `local-${Date.now()}`,
         firstName, lastName, email, password, phoneNumber,
+        profilePicture: profilePictureUrl
       });
       return res.status(201).json({ _id: user._id, firstName: user.firstName, email: user.email, role: 'customer', token: `token-${user._id}-customer` });
     }

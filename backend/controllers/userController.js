@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const cloudinary = require('../config/cloudinary');
 
 // @desc    Get logged-in user profile
 // @route   GET /api/users/profile
@@ -21,6 +22,11 @@ const updateUserProfile = async (req, res, next) => {
     user.lastName = req.body.lastName || user.lastName;
     user.phoneNumber = req.body.phoneNumber || user.phoneNumber;
     if (req.body.password) user.password = req.body.password;
+
+    if (req.body.profilePicture && req.body.profilePicture.startsWith('data:image')) {
+      const uploadRes = await cloudinary.uploader.upload(req.body.profilePicture, { folder: 'kalpathon_profiles' });
+      user.profilePicture = uploadRes.secure_url;
+    }
 
     if (req.body.lng && req.body.lat) {
       user.location = { type: 'Point', coordinates: [Number(req.body.lng), Number(req.body.lat)] };

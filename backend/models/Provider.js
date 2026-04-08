@@ -12,6 +12,7 @@ const providerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String },
   phoneNumber: { type: String },
+  profilePicture: { type: String },
   gender: { type: String },
   bio: { type: String },
   serviceType: { type: String },

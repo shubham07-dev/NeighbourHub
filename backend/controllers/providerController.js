@@ -1,4 +1,5 @@
 const Provider = require('../models/Provider');
+const cloudinary = require('../config/cloudinary');
 
 // @desc    Get nearby providers
 // @route   GET /api/providers/nearby?lng=...&lat=...&distance=...&serviceType=...
@@ -68,6 +69,11 @@ const updateProviderProfile = async (req, res, next) => {
     provider.status = req.body.status || provider.status;
     provider.gender = req.body.gender || provider.gender;
     if (req.body.password) provider.password = req.body.password;
+
+    if (req.body.profilePicture && req.body.profilePicture.startsWith('data:image')) {
+      const uploadRes = await cloudinary.uploader.upload(req.body.profilePicture, { folder: 'kalpathon_profiles' });
+      provider.profilePicture = uploadRes.secure_url;
+    }
 
     if (req.body.lng && req.body.lat) {
       provider.location = { type: 'Point', coordinates: [Number(req.body.lng), Number(req.body.lat)] };

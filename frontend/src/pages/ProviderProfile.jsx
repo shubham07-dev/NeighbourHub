@@ -6,7 +6,7 @@ import { getEnglishAreaName } from '../utils/geocode';
 
 const ProviderProfile = () => {
   const { user, login } = useAuth();
-  const [form, setForm] = useState({ firstName: '', lastName: '', phoneNumber: '', bio: '', serviceType: '', pricePerHour: '', priceType: 'per_hour', status: '', gender: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', phoneNumber: '', bio: '', serviceType: '', pricePerHour: '', priceType: 'per_hour', status: '', gender: '', profilePicture: '' });
   const [location, setLocation] = useState(null);
   const [locStatus, setLocStatus] = useState('');
   const [saving, setSaving] = useState(false);
@@ -20,7 +20,7 @@ const ProviderProfile = () => {
           firstName: data.firstName || '', lastName: data.lastName || '',
           phoneNumber: data.phoneNumber || '', bio: data.bio || '',
           serviceType: data.serviceType || '', pricePerHour: data.pricePerHour || '',
-          priceType: data.priceType || 'per_hour',
+          priceType: data.priceType || 'per_hour', profilePicture: data.profilePicture || '',
           status: data.status || 'available', gender: data.gender || ''
         });
         if (data.location?.coordinates) {
@@ -49,6 +49,15 @@ const ProviderProfile = () => {
     );
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setForm({ ...form, profilePicture: reader.result });
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -66,11 +75,22 @@ const ProviderProfile = () => {
   return (
     <div className="container" style={{maxWidth: '650px'}}>
       <div className="profile-header">
-        <div className="profile-avatar">{form.firstName?.charAt(0)?.toUpperCase()}</div>
+        <div className="profile-avatar" style={{ overflow: 'hidden' }}>
+          {form.profilePicture ? (
+            <img src={form.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            form.firstName?.charAt(0)?.toUpperCase()
+          )}
+        </div>
         <div className="profile-info">
           <h2>{form.firstName} {form.lastName}</h2>
           <p>{form.serviceType} — ₹{form.pricePerHour} / {form.priceType === 'per_month' ? 'month' : form.priceType === 'per_day' ? 'day' : 'hr'}</p>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1rem' }}>Profile Picture</h3>
+        <input type="file" accept="image/*" onChange={handleFileChange} />
       </div>
 
       <div className="card">

@@ -161,8 +161,14 @@ const CustomerDashboard = () => {
           <div className="provider-grid">
             {providers.map(p => (
               <div key={p._id} className="provider-card-new">
-                <div className="provider-card-top">
-                  <div className="provider-avatar-sm">{p.firstName?.charAt(0)}</div>
+                <div className="provider-card-header">
+                  <div className="provider-avatar" style={{ overflow: 'hidden' }}>
+                    {p.profilePicture ? (
+                      <img src={p.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      p.firstName?.charAt(0).toUpperCase()
+                    )}
+                  </div>
                   <div className="provider-card-info">
                     <h3>{p.firstName} {p.lastName}</h3>
                     <div className="provider-card-meta">

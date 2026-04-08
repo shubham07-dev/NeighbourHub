@@ -4,7 +4,7 @@ import axios from 'axios';
 
 const CustomerProfile = () => {
   const { user, login } = useAuth();
-  const [form, setForm] = useState({ firstName: '', lastName: '', phoneNumber: '', email: '' });
+  const [form, setForm] = useState({ firstName: '', lastName: '', phoneNumber: '', email: '', profilePicture: '' });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState('');
 
@@ -12,11 +12,20 @@ const CustomerProfile = () => {
     const fetchProfile = async () => {
       try {
         const { data } = await axios.get('/api/users/profile', { headers: { Authorization: `Bearer ${user.token}` } });
-        setForm({ firstName: data.firstName || '', lastName: data.lastName || '', phoneNumber: data.phoneNumber || '', email: data.email || '' });
+        setForm({ firstName: data.firstName || '', lastName: data.lastName || '', phoneNumber: data.phoneNumber || '', email: data.email || '', profilePicture: data.profilePicture || '' });
       } catch (err) { console.error(err); }
     };
     fetchProfile();
   }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setForm({ ...form, profilePicture: reader.result });
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -32,12 +41,23 @@ const CustomerProfile = () => {
 
   return (
     <div className="container" style={{maxWidth:'600px'}}>
-      <div className="profile-header">
-        <div className="profile-avatar">{form.firstName?.charAt(0)?.toUpperCase()}</div>
+      <div className="profile-header" style={{ position: 'relative' }}>
+        <div className="profile-avatar" style={{ overflow: 'hidden' }}>
+          {form.profilePicture ? (
+            <img src={form.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            form.firstName?.charAt(0)?.toUpperCase()
+          )}
+        </div>
         <div className="profile-info">
           <h2>{form.firstName} {form.lastName}</h2>
           <p>{form.email}</p>
         </div>
+      </div>
+
+      <div className="card" style={{ marginBottom: '2rem' }}>
+        <h3 style={{ marginBottom: '1rem' }}>Profile Picture</h3>
+        <input type="file" accept="image/*" onChange={handleFileChange} />
       </div>
 
       <div className="card">

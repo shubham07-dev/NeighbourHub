@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String },
   phoneNumber: { type: String },
+  profilePicture: { type: String },
   location: { type: pointSchema, index: '2dsphere' },
   role: { type: String, default: 'customer' }
 }, { timestamps: true });
