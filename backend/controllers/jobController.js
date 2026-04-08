@@ -1,16 +1,23 @@
 const Job = require('../models/Job');
 const Provider = require('../models/Provider');
+const Razorpay = require('razorpay');
+const crypto = require('crypto');
 
 // @desc    Create a job (customer books a provider)
 const createJob = async (req, res, next) => {
   try {
-    const { provider, description, lng, lat, houseNumber, city, area, proposedPrice } = req.body;
+    const { provider, description, lng, lat, houseNumber, city, area, proposedPrice, paymentMethod, paymentStatus, razorpayOrderId, razorpayPaymentId } = req.body;
     
     const providerDoc = await Provider.findById(provider);
     if (!providerDoc) { res.status(404); throw new Error('Provider not found'); }
 
     // Save to job natively
     const jobData = { user: req.user._id, provider, description, status: 'pending', agreedPrice: providerDoc.pricePerHour, priceType: providerDoc.priceType || 'per_hour' };
+    
+    if (paymentMethod) jobData.paymentMethod = paymentMethod;
+    if (paymentStatus) jobData.paymentStatus = paymentStatus;
+    if (razorpayOrderId) jobData.razorpayOrderId = razorpayOrderId;
+    if (razorpayPaymentId) jobData.razorpayPaymentId = razorpayPaymentId;
     
     if (proposedPrice) {
       if (Number(proposedPrice) < 100) {
@@ -202,4 +209,56 @@ const acceptPrice = async (req, res, next) => {
   } catch (error) { next(error); }
 };
 
-module.exports = { createJob, getMyJobs, getProviderJobs, updateJobStatus, addReview, getAllJobs, updateLiveLocation, negotiatePrice, acceptPrice };
+// @desc    Create Razorpay Order
+// @route   POST /api/jobs/payment/create-order
+const createRazorpayOrder = async (req, res, next) => {
+  try {
+    const { amount } = req.body;
+    
+    const instance = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
+    const options = {
+      amount: amount * 100, // amount in the smallest currency unit
+      currency: "INR",
+      receipt: "receipt_order_" + Date.now(),
+    };
+
+    const order = await instance.orders.create(options);
+    if (!order) return res.status(500).send("Some error occured");
+    res.json(order);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Verify Razorpay Payment
+// @route   POST /api/jobs/payment/verify
+const verifyPayment = async (req, res, next) => {
+  try {
+    const {
+      razorpayOrderId,
+      razorpayPaymentId,
+      razorpaySignature,
+    } = req.body;
+
+    const body = razorpayOrderId + "|" + razorpayPaymentId;
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+      .update(body.toString())
+      .digest("hex");
+
+    const isAuthentic = expectedSignature === razorpaySignature;
+    if (isAuthentic) {
+      res.json({ success: true, message: "Payment verified successfully" });
+    } else {
+      res.status(400).json({ success: false, message: "Invalid signature" });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createJob, getMyJobs, getProviderJobs, updateJobStatus, addReview, getAllJobs, updateLiveLocation, negotiatePrice, acceptPrice, createRazorpayOrder, verifyPayment };

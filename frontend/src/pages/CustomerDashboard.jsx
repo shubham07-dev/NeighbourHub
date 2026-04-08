@@ -25,6 +25,7 @@ const CustomerDashboard = () => {
   const [bookingDesc, setBookingDesc] = useState('');
   const [proposedPrice, setProposedPrice] = useState('');
   const [bookingProvider, setBookingProvider] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState('offline');
   const [searched, setSearched] = useState(false);
   const [providerReviews, setProviderReviews] = useState(null);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -59,6 +60,9 @@ const CustomerDashboard = () => {
   const handleBook = async (providerId, basePrice) => {
     if (!bookingDesc.trim()) return alert('Please describe the work you need.');
     if (proposedPrice && Number(proposedPrice) < 100) return alert('Proposed price cannot be lower than ₹100');
+    
+    const finalAmount = proposedPrice ? Number(proposedPrice) : basePrice;
+
     try {
       if (location && location.lng && location.lat) {
         try {
@@ -70,10 +74,39 @@ const CustomerDashboard = () => {
         }
       }
 
+      if (paymentMethod === 'online') {
+        const confirmPay = window.confirm(`[DEMO MODE] Secure Checkout Gateway\n\nAmount to pay: ₹${finalAmount}\n\nClick OK to simulate a successful payment.`);
+        if (!confirmPay) return;
+
+        // Give a tiny simulated network delay
+        await new Promise(resolve => setTimeout(resolve, 800));
+
+        // Now create the actual Job natively
+        await axios.post('/api/jobs', { 
+          provider: providerId, 
+          description: bookingDesc,
+          proposedPrice: proposedPrice ? Number(proposedPrice) : undefined,
+          paymentMethod: 'online',
+          paymentStatus: 'paid',
+          razorpayOrderId: 'order_demo_' + Date.now(),
+          razorpayPaymentId: 'pay_demo_' + Date.now()
+        }, { headers: { Authorization: `Bearer ${user.token}` }});
+        
+        alert(`Payment of ₹${finalAmount} Successful! Job request sent.`);
+        setBookingProvider(null);
+        setBookingDesc('');
+        setProposedPrice('');
+        setPaymentMethod('offline');
+        navigate('/customer/jobs');
+        return; // wait for response
+      }
+
+      // Offline flow
       await axios.post('/api/jobs', { 
         provider: providerId, 
         description: bookingDesc,
-        proposedPrice: proposedPrice ? Number(proposedPrice) : undefined
+        proposedPrice: proposedPrice ? Number(proposedPrice) : undefined,
+        paymentMethod: 'offline'
       }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
@@ -81,6 +114,7 @@ const CustomerDashboard = () => {
       setBookingProvider(null);
       setBookingDesc('');
       setProposedPrice('');
+      setPaymentMethod('offline');
       navigate('/customer/jobs');
     } catch (err) { alert(err.response?.data?.message || 'Booking failed'); }
   };
@@ -203,11 +237,62 @@ const CustomerDashboard = () => {
                       placeholder={`Propose Price (Optional, Base: ₹${p.pricePerHour} / ${p.priceType === 'per_month' ? 'month' : p.priceType === 'per_day' ? 'day' : 'hr'})`}
                       value={proposedPrice}
                       onChange={e => setProposedPrice(e.target.value)}
-                      style={{ width: '100%', padding: '0.6rem', marginBottom: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'white' }}
+                      style={{ width: '100%', padding: '0.6rem', marginBottom: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-primary)', color: 'var(--text-primary)' }}
                     />
+                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem', marginTop: '0.5rem' }}>
+                      <button 
+                        type="button"
+                        onClick={() => setPaymentMethod('offline')}
+                        style={{ 
+                          flex: 1, 
+                          padding: '0.8rem', 
+                          border: paymentMethod === 'offline' ? '2px solid var(--accent)' : '1px solid var(--border)', 
+                          background: paymentMethod === 'offline' ? 'rgba(107, 76, 255, 0.1)' : 'var(--bg-secondary)', 
+                          color: 'var(--text-primary)', 
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <span style={{ fontSize: '1.4rem' }}>💵</span>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Cash After</span>
+                      </button>
+
+                      <button 
+                        type="button"
+                        onClick={() => setPaymentMethod('online')}
+                        style={{ 
+                          flex: 1, 
+                          padding: '0.8rem', 
+                          border: paymentMethod === 'online' ? '2px solid var(--accent)' : '1px solid var(--border)', 
+                          background: paymentMethod === 'online' ? 'rgba(107, 76, 255, 0.1)' : 'var(--bg-secondary)', 
+                          color: 'var(--text-primary)', 
+                          borderRadius: '8px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.4rem',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <img 
+                          src="https://upload.wikimedia.org/wikipedia/commons/8/89/Razorpay_logo.svg" 
+                          alt="Razorpay" 
+                          style={{ height: '20px', objectFit: 'contain', filter: 'drop-shadow(0px 0px 2px rgba(255,255,255,0.7))', background: 'white', padding: '2px 6px', borderRadius: '4px' }} 
+                        />
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Pay Online</span>
+                      </button>
+                    </div>
                     <div className="booking-actions">
-                      <button className="btn btn-success btn-sm" onClick={() => handleBook(p._id, p.pricePerHour)}>Confirm</button>
-                      <button className="btn btn-secondary btn-sm" onClick={() => { setBookingProvider(null); setProposedPrice(''); }}>Cancel</button>
+                      <button className="btn btn-success btn-sm" onClick={() => handleBook(p._id, p.pricePerHour)}>{paymentMethod === 'online' ? 'Pay & Confirm' : 'Confirm Cash Booking'}</button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => { setBookingProvider(null); setProposedPrice(''); setPaymentMethod('offline'); }}>Cancel</button>
                     </div>
                   </div>
                 ) : (

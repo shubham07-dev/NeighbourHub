@@ -19,6 +19,10 @@ const jobSchema = new mongoose.Schema({
   description: { type: String },
   agreedPrice: { type: Number }, // the finalized base cost for the service
   priceType: { type: String, enum: ['per_hour', 'per_day', 'per_month'], default: 'per_hour' },
+  paymentMethod: { type: String, enum: ['offline', 'online'], default: 'offline' },
+  paymentStatus: { type: String, enum: ['pending', 'paid', 'failed'], default: 'pending' },
+  razorpayOrderId: { type: String },
+  razorpayPaymentId: { type: String },
   negotiation: {
     isNegotiating: { type: Boolean, default: false },
     price: { type: Number },

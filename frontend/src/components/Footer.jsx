@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Home, Mail, Phone, MapPin, Twitter, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Home, Mail, Phone, MapPin } from 'lucide-react';
 
 const Footer = () => {
   return (
@@ -17,23 +17,18 @@ const Footer = () => {
               Your trusted platform connecting you with verified neighborhood professionals. Fast, reliable, and just around the corner.
             </p>
             <div className="social-links">
-              <a href="#" aria-label="Twitter" className="social-btn">
-                <Twitter size={18} />
-              </a>
-              <a href="#" aria-label="Facebook" className="social-btn">
-                <Facebook size={18} />
-              </a>
-              <a href="#" aria-label="Instagram" className="social-btn">
-                <Instagram size={18} />
-              </a>
+              <a href="#" aria-label="Twitter" className="social-btn">𝕏</a>
+              <a href="#" aria-label="Facebook" className="social-btn">f</a>
+              <a href="#" aria-label="Instagram" className="social-btn">ig</a>
               <a 
                 href="https://www.linkedin.com/in/ujjwal-srivastava-844034328/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 aria-label="LinkedIn" 
                 className="social-btn"
+                style={{ fontWeight: 'bold' }}
               >
-                <Linkedin size={18} />
+                in
               </a>
             </div>
           </div>

@@ -12,4 +12,9 @@ router.put('/:id/review', protect, addReview);
 router.put('/:id/negotiate', protect, negotiatePrice);
 router.put('/:id/accept-price', protect, acceptPrice);
 
+// Payment routes
+const { createRazorpayOrder, verifyPayment } = require('../controllers/jobController');
+router.post('/payment/create-order', protect, createRazorpayOrder);
+router.post('/payment/verify', protect, verifyPayment);
+
 module.exports = router;
