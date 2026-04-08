@@ -124,7 +124,7 @@ npm start
 ### 🔹 Frontend
 
 ```bash
-cd client
+cd frontend
 npm install
 npm run dev
 ```
