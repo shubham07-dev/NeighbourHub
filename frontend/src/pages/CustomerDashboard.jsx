@@ -161,8 +161,8 @@ const CustomerDashboard = () => {
           <div className="provider-grid">
             {providers.map(p => (
               <div key={p._id} className="provider-card-new">
-                <div className="provider-card-header">
-                  <div className="provider-avatar" style={{ overflow: 'hidden' }}>
+                <div className="provider-card-top">
+                  <div className="provider-avatar-sm" style={{ overflow: 'hidden' }}>
                     {p.profilePicture ? (
                       <img src={p.profilePicture} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
