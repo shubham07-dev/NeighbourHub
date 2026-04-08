@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { MapPin, Check, X } from 'lucide-react';
 
 const ProviderProfile = () => {
   const { user, login } = useAuth();
@@ -22,7 +23,7 @@ const ProviderProfile = () => {
         });
         if (data.location?.coordinates) {
           setLocation({ lng: data.location.coordinates[0], lat: data.location.coordinates[1] });
-          setLocStatus(`📍 Current: (${data.location.coordinates[1].toFixed(4)}, ${data.location.coordinates[0].toFixed(4)})`);
+          setLocStatus(`Current: (${data.location.coordinates[1].toFixed(4)}, ${data.location.coordinates[0].toFixed(4)})`);
         }
       } catch (err) { console.error(err); }
     };
@@ -38,9 +39,9 @@ const ProviderProfile = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude });
-        setLocStatus(`📍 Updated to (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+        setLocStatus(`Updated to (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
       },
-      () => setLocStatus('❌ Location access denied')
+      () => setLocStatus('Error: Location access denied')
     );
   };
 
@@ -72,12 +73,12 @@ const ProviderProfile = () => {
         <h3 style={{marginBottom:'1rem'}}>Edit Provider Profile</h3>
         {msg && <div className="error-msg" style={{background: msg.includes('updated') ? 'rgba(46,204,113,0.1)' : undefined, color: msg.includes('updated') ? '#2ecc71' : undefined}}>{msg}</div>}
         <form onSubmit={handleSubmit}>
-          <div style={{display:'flex', gap:'1rem'}}>
-            <div className="form-group" style={{flex:1}}>
+          <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.2rem' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>First Name</label>
               <input value={form.firstName} onChange={e => setForm({...form, firstName: e.target.value})} />
             </div>
-            <div className="form-group" style={{flex:1}}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Last Name</label>
               <input value={form.lastName} onChange={e => setForm({...form, lastName: e.target.value})} />
             </div>
@@ -86,15 +87,15 @@ const ProviderProfile = () => {
             <label>Phone Number</label>
             <input value={form.phoneNumber} onChange={e => setForm({...form, phoneNumber: e.target.value})} />
           </div>
-          <div style={{display:'flex', gap:'1rem'}}>
-            <div className="form-group" style={{flex:1}}>
+          <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.2rem' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Service Type</label>
               <select value={form.serviceType} onChange={e => setForm({...form, serviceType: e.target.value})}>
                 <option>Plumber</option><option>Electrician</option><option>Tutor</option>
                 <option>Delivery Agent</option><option>House Cleaner</option><option>Carpenter</option><option>Painter</option>
               </select>
             </div>
-            <div className="form-group" style={{flex:1}}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Price Per Hour (₹)</label>
               <input type="number" value={form.pricePerHour} onChange={e => setForm({...form, pricePerHour: e.target.value})} />
             </div>
@@ -113,12 +114,15 @@ const ProviderProfile = () => {
           </div>
           <div className="form-group">
             <label>Service Location</label>
-            <button type="button" className="btn btn-secondary btn-block" onClick={captureLocation}>
-              {location ? '✅ Update My Location' : '📍 Share My Location'}
+            <button type="button" className="btn btn-secondary btn-block" onClick={captureLocation} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'}}>
+              {location ? <><Check size={16} /> Update My Location</> : <><MapPin size={16} /> Share My Location</>}
             </button>
-            {locStatus && <p className="text-sm mt-1" style={{color: locStatus.includes('📍') ? '#2ecc71' : locStatus.includes('❌') ? '#e74c3c' : 'var(--text-secondary)'}}>{locStatus}</p>}
+            {locStatus && <p className="text-sm mt-1" style={{display: 'flex', alignItems: 'center', gap: '0.3rem', color: locStatus.includes('Current') || locStatus.includes('Updated') ? '#2ecc71' : locStatus.includes('Error') ? '#e74c3c' : 'var(--text-secondary)'}}>
+              {locStatus.includes('Current') || locStatus.includes('Updated') ? <MapPin size={14} /> : locStatus.includes('Error') ? <X size={14} /> : null}
+              {locStatus}
+            </p>}
           </div>
-          <button type="submit" className="btn btn-primary btn-block" disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
+          <button type="submit" className="btn btn-primary btn-block" style={{display: 'flex', justifyContent: 'center'}} disabled={saving}>{saving ? 'Saving...' : 'Save Changes'}</button>
         </form>
       </div>
     </div>

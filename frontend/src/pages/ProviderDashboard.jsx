@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import { Inbox, Phone, Check, X, Wrench, Play, Map, CheckCircle, Star } from 'lucide-react';
 
 const ProviderDashboard = () => {
   const { user } = useAuth();
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const intervalRef = useRef(null);
-  const watchIdRef = useRef(null);
 
   const fetchJobs = async () => {
     try {
@@ -31,25 +31,6 @@ const ProviderDashboard = () => {
     } catch (err) { alert('Update failed'); }
   };
 
-  useEffect(() => {
-    const outForServiceJob = jobs.find(j => j.status === 'out for service');
-    if (outForServiceJob && navigator.geolocation) {
-      if (!watchIdRef.current) {
-        watchIdRef.current = navigator.geolocation.watchPosition((pos) => {
-          axios.put(`/api/jobs/${outForServiceJob._id}/live-location`, {
-            lng: pos.coords.longitude,
-            lat: pos.coords.latitude
-          }, { headers: { Authorization: `Bearer ${user.token}` } }).catch(() => {});
-        }, () => {}, { enableHighAccuracy: true });
-      }
-    } else {
-      if (watchIdRef.current) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
-        watchIdRef.current = null;
-      }
-    }
-  }, [jobs]);
-
   const openRoute = (providerLoc, userLoc) => {
     // Graceful fallback if native location is missing (useful for older demo accounts)
     const pLoc = providerLoc?.coordinates || [80.9462, 26.8467]; // default origin
@@ -62,7 +43,7 @@ const ProviderDashboard = () => {
   };
 
   const pending = jobs.filter(j => j.status === 'pending');
-  const active = jobs.filter(j => ['accepted', 'out for service', 'reached', 'ongoing'].includes(j.status));
+  const active = jobs.filter(j => ['accepted', 'ongoing'].includes(j.status));
   const completed = jobs.filter(j => j.status === 'completed');
 
   if (loading) return <div className="loading">Loading dashboard...</div>;
@@ -70,7 +51,7 @@ const ProviderDashboard = () => {
   return (
     <div className="container">
       <div className="page-header">
-        <div className="flex-between">
+        <div className="flex-between" style={{ flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h1>Provider Dashboard</h1>
             <p>Welcome back, {user.firstName}! Manage your incoming jobs here.</p>
@@ -90,7 +71,7 @@ const ProviderDashboard = () => {
 
       {pending.length > 0 && (
         <>
-          <h2 className="section-title" style={{marginBottom:'1rem'}}>📩 Pending Requests</h2>
+          <h2 className="section-title" style={{marginBottom:'1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}><Inbox size={20} /> Pending Requests</h2>
           <div className="grid grid-2" style={{marginBottom:'2rem'}}>
             {pending.map(job => (
               <div key={job._id} className="card">
@@ -99,10 +80,10 @@ const ProviderDashboard = () => {
                   <span className="badge badge-pending">Pending</span>
                 </div>
                 <p className="text-sm">{job.description}</p>
-                {job.user?.phoneNumber && <p className="text-sm text-muted mt-1">📞 {job.user.phoneNumber}</p>}
-                <div className="flex gap-1 mt-2">
-                  <button className="btn btn-success btn-sm" onClick={() => updateStatus(job._id, 'accepted')}>✓ Accept</button>
-                  <button className="btn btn-danger btn-sm" onClick={() => updateStatus(job._id, 'rejected')}>✕ Reject</button>
+                {job.user?.phoneNumber && <p className="text-sm text-muted mt-1" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Phone size={14} /> {job.user.phoneNumber}</p>}
+                <div className="flex gap-1 mt-2" style={{flexWrap: 'wrap'}}>
+                  <button className="btn btn-success btn-sm" onClick={() => updateStatus(job._id, 'accepted')} style={{flex: 1, justifyContent: 'center'}}><Check size={16} /> Accept</button>
+                  <button className="btn btn-danger btn-sm" onClick={() => updateStatus(job._id, 'rejected')} style={{flex: 1, justifyContent: 'center'}}><X size={16} /> Reject</button>
                 </div>
               </div>
             ))}
@@ -112,7 +93,7 @@ const ProviderDashboard = () => {
 
       {active.length > 0 && (
         <>
-          <h2 className="section-title" style={{marginBottom:'1rem'}}>🔧 Active Jobs</h2>
+          <h2 className="section-title" style={{marginBottom:'1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}><Wrench size={20} /> Active Jobs</h2>
           <div className="grid grid-2" style={{marginBottom:'2rem'}}>
             {active.map(job => (
               <div key={job._id} className="card">
@@ -121,20 +102,17 @@ const ProviderDashboard = () => {
                   <span className={`badge badge-${job.status}`}>{job.status}</span>
                 </div>
                 <p className="text-sm">{job.description}</p>
-                {job.user?.phoneNumber && <p className="text-sm text-muted mt-1">📞 {job.user.phoneNumber}</p>}
+                {job.user?.phoneNumber && <p className="text-sm text-muted mt-1" style={{display: 'flex', alignItems: 'center', gap: '0.3rem'}}><Phone size={14} /> {job.user.phoneNumber}</p>}
 
-                {job.address?.city && <p className="text-sm mt-1">📍 {job.address.houseNumber}, {job.address.area}, {job.address.city}</p>}
-
-                <div className="flex gap-1 mt-2">
-                  {job.status === 'accepted' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'out for service')}>🚗 Start Journey</button>}
-                  {job.status === 'out for service' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'reached')}>📍 Arrived</button>}
-                  {job.status === 'reached' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'ongoing')}>▶ Start Work</button>}
-                  {job.status === 'ongoing' && <button className="btn btn-success btn-sm" onClick={() => updateStatus(job._id, 'completed')}>✓ Mark Complete</button>}
+                <div className="flex gap-1 mt-2" style={{flexWrap: 'wrap'}}>
+                  {job.status === 'accepted' && <button className="btn btn-primary btn-sm" onClick={() => updateStatus(job._id, 'ongoing')} style={{flex: 1, justifyContent: 'center'}}><Play size={16} /> Start Work</button>}
+                  {job.status === 'ongoing' && <button className="btn btn-success btn-sm" onClick={() => updateStatus(job._id, 'completed')} style={{flex: 1, justifyContent: 'center'}}><Check size={16} /> Mark Complete</button>}
                   <button
                     className="btn btn-route btn-sm"
-                    onClick={() => openRoute(job.provider?.location || user.location, job.serviceLocation || job.user?.location)}
+                    onClick={() => openRoute(job.provider?.location || user.location, job.user?.location)}
+                    style={{flex: 1, justifyContent: 'center'}}
                   >
-                    🗺️ Navigate to Customer
+                    <Map size={16} /> Navigate
                   </button>
                 </div>
               </div>
@@ -145,7 +123,7 @@ const ProviderDashboard = () => {
 
       {completed.length > 0 && (
         <>
-          <h2 className="section-title" style={{marginBottom:'1rem'}}>✅ Completed Jobs</h2>
+          <h2 className="section-title" style={{marginBottom:'1rem', display: 'flex', alignItems: 'center', gap: '0.5rem'}}><CheckCircle size={20} color="var(--accent-green)" /> Completed Jobs</h2>
           <div className="grid grid-2">
             {completed.map(job => (
               <div key={job._id} className="card">
@@ -155,7 +133,12 @@ const ProviderDashboard = () => {
                 </div>
                 <p className="text-sm">{job.description}</p>
                 {job.reviews?.rating && (
-                  <p className="text-sm mt-1">{'⭐'.repeat(job.reviews.rating)} — "{job.reviews.comment}"</p>
+                  <p className="text-sm mt-1" style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                    <span style={{color: 'var(--accent-yellow)', display: 'flex'}}>
+                      {[...Array(job.reviews.rating)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                    </span>
+                    <span className="text-muted">"{job.reviews.comment}"</span>
+                  </p>
                 )}
               </div>
             ))}

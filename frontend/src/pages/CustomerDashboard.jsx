@@ -3,26 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useLocation } from '../context/LocationContext';
 import axios from 'axios';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
-
-// Fix Vite leaflet icon missing issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
+import { Wrench, Zap, BookOpen, Truck, Sparkles, Hammer, Paintbrush, Home, MapPin, Search, Phone, Star, StarHalf } from 'lucide-react';
 
 const SERVICE_CATEGORIES = [
-  { name: 'Plumber', icon: '🔧' },
-  { name: 'Electrician', icon: '⚡' },
-  { name: 'Tutor', icon: '📚' },
-  { name: 'Delivery Agent', icon: '🚚' },
-  { name: 'House Cleaner', icon: '🧹' },
-  { name: 'Carpenter', icon: '🪚' },
-  { name: 'Painter', icon: '🎨' },
+  { name: 'Plumber', icon: <Wrench size={24} /> },
+  { name: 'Electrician', icon: <Zap size={24} /> },
+  { name: 'Tutor', icon: <BookOpen size={24} /> },
+  { name: 'Delivery Agent', icon: <Truck size={24} /> },
+  { name: 'House Cleaner', icon: <Sparkles size={24} /> },
+  { name: 'Carpenter', icon: <Hammer size={24} /> },
+  { name: 'Painter', icon: <Paintbrush size={24} /> },
 ];
 
 const CustomerDashboard = () => {
@@ -35,15 +25,6 @@ const CustomerDashboard = () => {
   const [bookingDesc, setBookingDesc] = useState('');
   const [bookingProvider, setBookingProvider] = useState(null);
   const [searched, setSearched] = useState(false);
-  const [bookingLocation, setBookingLocation] = useState(null);
-  const [address, setAddress] = useState({ houseNumber: '', city: '', area: '' });
-
-  const MapEvents = () => {
-    useMapEvents({
-      click(e) { setBookingLocation({ lng: e.latlng.lng, lat: e.latlng.lat }); }
-    });
-    return bookingLocation ? <Marker position={[bookingLocation.lat, bookingLocation.lng]} /> : null;
-  };
 
   // Auto-fetch providers when location is available
   useEffect(() => {
@@ -73,17 +54,18 @@ const CustomerDashboard = () => {
 
   const handleBook = async (providerId) => {
     if (!bookingDesc.trim()) return alert('Please describe the work you need.');
-    if (!bookingLocation) return alert('Please drop a pin on the map to confirm service location.');
     try {
-      const payload = {
-        provider: providerId,
-        description: bookingDesc,
-        lng: bookingLocation.lng,
-        lat: bookingLocation.lat,
-        ...address
-      };
+      if (location && location.lng && location.lat) {
+        try {
+          await axios.put('/api/users/profile', { lng: location.lng, lat: location.lat }, {
+            headers: { Authorization: `Bearer ${user.token}` }
+          });
+        } catch (locErr) {
+          console.warn('Failed to save user location to profile:', locErr);
+        }
+      }
 
-      await axios.post('/api/jobs', payload, {
+      await axios.post('/api/jobs', { provider: providerId, description: bookingDesc }, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       alert('Job request sent! Check your Jobs page.');
@@ -95,12 +77,17 @@ const CustomerDashboard = () => {
 
   const renderStars = (rating) => {
     const r = Math.round(rating || 0);
-    return r > 0 ? '⭐'.repeat(r) : '☆ No ratings';
+    if (r === 0) return <span style={{display: 'inline-flex', alignItems: 'center', gap: '4px'}}><Star size={14} color="var(--text-muted)"/> No ratings</span>;
+    return (
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '2px', color: 'var(--accent-yellow)' }}>
+        {[...Array(r)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+      </span>
+    );
   };
 
   return (
     <div className="dashboard-container">
-      {/* Service Categories — Swiggy style */}
+      {/* Service Categories */}
       <section className="categories-section">
         <h2 className="section-title">What service do you need?</h2>
         <div className="categories-scroll">
@@ -108,7 +95,9 @@ const CustomerDashboard = () => {
             className={`category-item ${activeCategory === 'All' ? 'active' : ''}`}
             onClick={() => fetchProviders('All')}
           >
-            <div className="category-icon">🏠</div>
+            <div className="category-icon" style={{ display: 'flex', alignItems: 'center' }}>
+              <Home size={24} />
+            </div>
             <span>All Services</span>
           </button>
           {SERVICE_CATEGORIES.map(cat => (
@@ -117,7 +106,9 @@ const CustomerDashboard = () => {
               className={`category-item ${activeCategory === cat.name ? 'active' : ''}`}
               onClick={() => fetchProviders(cat.name)}
             >
-              <div className="category-icon">{cat.icon}</div>
+              <div className="category-icon" style={{ display: 'flex', alignItems: 'center' }}>
+                {cat.icon}
+              </div>
               <span>{cat.name}</span>
             </button>
           ))}
@@ -128,7 +119,7 @@ const CustomerDashboard = () => {
       <section className="providers-section">
         <div className="section-header">
           <h2 className="section-title">
-            {activeCategory === 'All' ? 'Top Service Providers' : `${activeCategory}s`} near {areaName || 'you'}
+            {activeCategory === 'All' ? 'Top Providers' : `${activeCategory}s`} near {areaName || 'you'}
           </h2>
           {providers.length > 0 && <span className="result-count">{providers.length} found</span>}
         </div>
@@ -139,12 +130,12 @@ const CustomerDashboard = () => {
           </div>
         ) : !searched ? (
           <div className="empty-state">
-            <div className="empty-icon">📍</div>
+            <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center', color: 'var(--text-muted)', marginBottom: '1rem' }}><MapPin size={48} /></div>
             <p>Allow location access to discover service providers near you</p>
           </div>
         ) : providers.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">🔍</div>
+            <div className="empty-icon" style={{ display: 'flex', justifyContent: 'center', color: 'var(--text-muted)', marginBottom: '1rem' }}><Search size={48} /></div>
             <p>No {activeCategory !== 'All' ? activeCategory + 's' : 'providers'} found nearby. Try a different category!</p>
           </div>
         ) : (
@@ -157,52 +148,34 @@ const CustomerDashboard = () => {
                     <h3>{p.firstName} {p.lastName}</h3>
                     <div className="provider-card-meta">
                       <span className="badge badge-service">{p.serviceType}</span>
-                      <span className="provider-rating">{renderStars(p.avgReviews)} ({p.numberOfReviews || 0})</span>
+                      <span className="provider-rating">{renderStars(p.avgReviews)} <span style={{marginLeft: '0.2rem'}}>({p.numberOfReviews || 0})</span></span>
                     </div>
                   </div>
                   <div className="provider-price">₹{p.pricePerHour}<small>/hr</small></div>
                 </div>
                 {p.bio && <p className="provider-bio">{p.bio}</p>}
                 <div className="provider-card-footer">
-                  <span className="provider-phone">📞 {p.phoneNumber || 'N/A'}</span>
+                  <span className="provider-phone" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <Phone size={14} /> {p.phoneNumber || 'N/A'}
+                  </span>
                   <span className="badge badge-available">{p.status}</span>
                 </div>
 
                 {bookingProvider === p._id ? (
-                  <div className="booking-inline" style={{display:'flex', flexDirection:'column', gap:'0.8rem'}}>
+                  <div className="booking-inline">
                     <textarea
                       placeholder="Describe the work you need..."
                       value={bookingDesc}
                       onChange={e => setBookingDesc(e.target.value)}
                       rows="2"
                     />
-                    
-                    <div style={{fontSize:'0.9rem', fontWeight:'600'}}>Confirm Location</div>
-                    <div style={{ height: '200px', width: '100%', borderRadius: '8px', overflow: 'hidden' }}>
-                      <MapContainer center={[bookingLocation?.lat || 26.8467, bookingLocation?.lng || 80.9462]} zoom={13} style={{ height: '100%', width: '100%' }}>
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        <MapEvents />
-                      </MapContainer>
-                    </div>
-                    <p style={{fontSize:'0.75rem', color:'#aaa'}}>* Tap on map to drop precise pin</p>
-
-                    <div style={{display:'flex', gap:'0.5rem'}}>
-                      <input placeholder="City" value={address.city} onChange={e=>setAddress({...address, city: e.target.value})} />
-                      <input placeholder="Area" value={address.area} onChange={e=>setAddress({...address, area: e.target.value})} />
-                    </div>
-                    <input placeholder="House No. / Flat / Landmark" value={address.houseNumber} onChange={e=>setAddress({...address, houseNumber: e.target.value})} />
-
                     <div className="booking-actions">
-                      <button className="btn btn-success btn-sm" onClick={() => handleBook(p._id)}>✓ Confirm Job</button>
+                      <button className="btn btn-success btn-sm" onClick={() => handleBook(p._id)}>Confirm</button>
                       <button className="btn btn-secondary btn-sm" onClick={() => setBookingProvider(null)}>Cancel</button>
                     </div>
                   </div>
                 ) : (
-                  <button className="btn btn-primary btn-sm btn-book" onClick={() => {
-                    setBookingProvider(p._id);
-                    setBookingLocation(location || { lng: 80.9462, lat: 26.8467 });
-                    setAddress({ houseNumber: '', city: '', area: areaName || '' });
-                  }}>Book Now</button>
+                  <button className="btn btn-primary btn-sm btn-book" onClick={() => setBookingProvider(p._id)}>Book Now</button>
                 )}
               </div>
             ))}

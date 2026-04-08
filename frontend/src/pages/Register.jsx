@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
+import { MapPin, Check, X } from 'lucide-react';
 
 const Register = () => {
   const [role, setRole] = useState('customer');
@@ -25,9 +26,9 @@ const Register = () => {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocation({ lng: pos.coords.longitude, lat: pos.coords.latitude });
-        setLocStatus(`📍 Location captured (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
+        setLocStatus(`Location captured (${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)})`);
       },
-      () => setLocStatus('❌ Location access denied. Please enable location access.')
+      () => setLocStatus('Error: Location access denied. Please enable location access.')
     );
   };
 
@@ -91,12 +92,12 @@ const Register = () => {
         {error && <div className="error-msg">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div style={{display:'flex', gap:'1rem'}}>
-            <div className="form-group" style={{flex:1}}>
+          <div className="grid grid-2" style={{ gap: '1rem', marginBottom: '1.2rem' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>First Name *</label>
               <input name="firstName" value={form.firstName} onChange={handleChange} required />
             </div>
-            <div className="form-group" style={{flex:1}}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
               <label>Last Name</label>
               <input name="lastName" value={form.lastName} onChange={handleChange} />
             </div>
@@ -139,10 +140,13 @@ const Register = () => {
               </div>
               <div className="form-group">
                 <label>Your Service Location *</label>
-                <button type="button" className="btn btn-secondary btn-block" onClick={captureLocation}>
-                  {location ? '✅ Location Captured — Click to Refresh' : '📍 Share My Location'}
+                <button type="button" className="btn btn-secondary btn-block" onClick={captureLocation} style={{display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem'}}>
+                  {location ? <><Check size={16} /> Location Captured</> : <><MapPin size={16} /> Share My Location</>}
                 </button>
-                {locStatus && <p className="text-sm mt-1" style={{color: locStatus.includes('📍') ? '#2ecc71' : locStatus.includes('❌') ? '#e74c3c' : 'var(--text-secondary)'}}>{locStatus}</p>}
+                {locStatus && <p className="text-sm mt-1" style={{display: 'flex', alignItems: 'center', gap: '0.3rem', color: locStatus.includes('captured') ? '#2ecc71' : locStatus.includes('Error') ? '#e74c3c' : 'var(--text-secondary)'}}>
+                  {locStatus.includes('captured') ? <MapPin size={14} /> : locStatus.includes('Error') ? <X size={14} /> : null}
+                  {locStatus}
+                </p>}
               </div>
             </>
           )}
