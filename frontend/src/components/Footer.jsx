@@ -58,7 +58,7 @@ const Footer = () => {
             <h4>Contact Us</h4>
             <ul className="footer-contact">
               <li><MapPin size={16} className="contact-icon" /> <span>BBD College,<br />Tech City, Lucknow</span></li>
-              <li><Phone size={16} className="contact-icon" /> <span>+91 8303201079</span></li>
+              <li><Phone size={16} className="contact-icon" /> <span>+91 8303201078</span></li>
               <li><Mail size={16} className="contact-icon" /> <span>alphacoders@gmail.com</span></li>
             </ul>
           </div>
