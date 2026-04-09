@@ -38,6 +38,9 @@ html { scroll-behavior: smooth; }
   --text-muted: #64748b;
   --border: rgba(0, 0, 0, 0.1);
   --border-light: rgba(0, 0, 0, 0.05);
+  --bg-nav: rgba(255, 255, 255, 0.8);
+  --bg-nav-mobile: rgba(255, 255, 255, 0.95);
+  --bg-dropdown: rgba(255, 255, 255, 1);
 }
 
 body {
@@ -287,7 +290,7 @@ a:hover { color: var(--accent-light); }
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 1.2rem;
-  color: #fff;
+  color: var(--text-primary);
   -webkit-text-fill-color: unset;
   background: none;
 }
@@ -331,7 +334,7 @@ a:hover { color: var(--accent-light); }
   text-align: center;
 }
 .section-heading {
-  font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: #fff;
+  font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);
 }
 .section-subheading {
   color: var(--text-secondary); font-size: 1rem; margin-bottom: 3rem;
@@ -456,7 +459,7 @@ tr:hover { background: rgba(233, 69, 96, 0.03); }
    SWIGGY-STYLE NAVBAR
    ============================ */
 .navbar-new {
-  background: rgba(20, 20, 25, 0.6);
+  background: var(--bg-nav, rgba(20, 20, 25, 0.6));
   backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-pill);
@@ -523,7 +526,7 @@ tr:hover { background: rgba(233, 69, 96, 0.03); }
   white-space: nowrap;
   text-decoration: none;
 }
-.nav-item:hover { color: var(--text-primary); background: rgba(255,255,255,0.04); }
+.nav-item:hover { color: var(--text-primary); background: var(--bg-card-hover); }
 .nav-item-static { cursor: default; }
 .nav-icon { font-size: 0.95rem; }
 
@@ -577,7 +580,7 @@ tr:hover { background: rgba(233, 69, 96, 0.03); }
   top: calc(100% + 8px);
   right: 0;
   width: 240px;
-  background: var(--bg-secondary);
+  background: var(--bg-dropdown, var(--bg-secondary));
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
@@ -821,6 +824,9 @@ tr:hover { background: rgba(233, 69, 96, 0.03); }
   .btn, .form-group input, .form-group select, .form-group textarea {
     padding: 0.8rem 1rem;
   }
+  
+  .stat-card { padding: 1rem; }
+  .stat-card .stat-number { font-size: 1.6rem; word-break: break-word; }
 
   /* Hamburger Menu logic */
   .mobile-menu-toggle { display: block; }
@@ -832,7 +838,7 @@ tr:hover { background: rgba(233, 69, 96, 0.03); }
     top: calc(100% + 0.5rem);
     right: 0;
     width: 250px;
-    background: rgba(20, 20, 25, 0.95);
+    background: var(--bg-nav-mobile, rgba(20, 20, 25, 0.95));
     backdrop-filter: blur(24px);
     border: 1px solid var(--border-light);
     border-radius: var(--radius);

@@ -156,7 +156,7 @@ const Navbar = () => {
                 <button 
                   className="nav-item" 
                   onClick={toggleLanguage} 
-                  style={{ width: '100%', justifyContent: 'flex-start', marginTop: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem', color: '#fff' }}
+                  style={{ width: '100%', justifyContent: 'flex-start', marginTop: '0.5rem', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '1rem', color: 'var(--text-primary)' }}
                 >
                   <Languages size={16} className="nav-icon" style={{ color: '#aaa' }} /> {currentLang === 'en' ? 'Switch to Hindi (हिंदी)' : 'Switch to English'}
                 </button>
